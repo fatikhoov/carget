@@ -279,7 +279,10 @@ document.addEventListener('DOMContentLoaded', async (event) => {
       if (slideIndex !== -1) {
         carState.options.wheels[0] = currentPrice
         carState.options.wheels[1] = currentColor
-        diskDiametr.swiper.slideTo(e.realIndex + 2, 400)
+        diskDiametr.swiper.slideTo(
+          e.realIndex + diskDiametr.swiper.params.slidesPerView,
+          400
+        )
         updateTitlePrice()
       }
 
@@ -1437,7 +1440,10 @@ document.addEventListener('DOMContentLoaded', async (event) => {
       }, 200)
     }
 
-    colorCarousel.swiper.slideTo(e.realIndex + 3, 500)
+    colorCarousel.swiper.slideTo(
+      e.realIndex + colorCarousel.swiper.params.slidesPerView,
+      500
+    )
     // Сбросьте флаг после завершения обновления карусели
     isUpdatingCarousel = false
   })
@@ -1509,7 +1515,10 @@ document.addEventListener('DOMContentLoaded', async (event) => {
       if (slideIndex !== -1) {
         carState.options.interiorColor[0] = currentPrice
         carState.options.interiorColor[1] = currentColor
-        colorSalon.swiper.slideTo(e.realIndex + 2, 400)
+        colorSalon.swiper.slideTo(
+          e.realIndex + colorSalon.swiper.params.slidesPerView,
+          400
+        )
         updateTitlePrice()
       }
 
