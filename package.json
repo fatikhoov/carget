@@ -1,0 +1,26 @@
+{
+  "name": "npm-carget",
+  "version": "1.0.0",
+  "description": "optimization js code for carget website",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fatikhoov/npm-carget.git"
+  },
+  "keywords": [
+    "npm",
+    "carget",
+    "website",
+    "js",
+    "optimization"
+  ],
+  "author": "Vladislav Fatikhov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fatikhoov/npm-carget/issues"
+  },
+  "homepage": "https://github.com/fatikhoov/npm-carget#readme"
+}
