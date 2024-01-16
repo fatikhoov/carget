@@ -4,7 +4,8 @@
   "description": "optimization js code for carget website",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "build": "webpack --progress --display-error-details --display-entrypoints --display-reasons"
   },
   "repository": {
     "type": "git",
