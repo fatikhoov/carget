@@ -1,0 +1,38 @@
+{
+  "name": "carget",
+  "version": "1.0.0",
+  "description": "optimization js code for carget website",
+  "main": "dist/index.min.js",
+  "scripts": {
+    "build": "babel index.js -o dist/index.js && uglifyjs dist/index.js -o dist/index.min.js",
+    "release-patch": "npm version patch && npm publish",
+    "release-minor": "npm version minor && npm publish",
+    "release-major": "npm version major && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fatikhoov/npm-carget.git"
+  },
+  "keywords": [
+    "npm",
+    "carget",
+    "website",
+    "js",
+    "optimization"
+  ],
+  "author": "Vladislav Fatikhov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fatikhoov/carget/issues"
+  },
+  "homepage": "https://github.com/fatikhoov/carget#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.8",
+    "uglify-js": "^3.17.4"
+  },
+  "presets": [
+    "@babel/preset-env"
+  ]
+}
