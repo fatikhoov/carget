@@ -159,7 +159,10 @@ async function updateCaruselDisk(dc) {
   carState.options.wheels[0] = indexOption('wheels', 0, 'index').price
   carState.options.wheels[1] = indexOption('wheels', 0, 'index').color
   // Проверяем существование объекта diskDiametr и его свойства swiper
-  if (diskDiametr && diskDiametr.swiper.params.slidesPerView > 1) {
+  if (
+    diskDiametr &&
+    diskDiametr.querySelector('.swiper-slide.swiper-slide-active')
+  ) {
     // Вызываем метод slideTo для объекта diskDiametr.swiper
     diskDiametr.swiper.slideTo(2, 0)
   }
@@ -246,7 +249,10 @@ const updateTitlePrice = () => {
 }
 
 document.addEventListener('DOMContentLoaded', async (event) => {
-  if (diskDiametr && diskDiametr.swiper.params.slidesPerView > 1) {
+  if (
+    diskDiametr &&
+    diskDiametr.querySelector('.swiper-slide.swiper-slide-active')
+  ) {
     diskDiametr.swiper.on('activeIndexChange', async (e) => {
       if (isUpdatingCarousel) {
         return
@@ -1428,32 +1434,53 @@ console.log('Загрузка ...')
 //  ОБНОВЛЕНИЯ САЙТА (КАРУСЕЛИ, АККОРДИОН, ШАПКА)
 // ОБНОВИТЬ СТОИМОСТb В ШАПКЕ, В МОДЕЛЯХ H2
 // Устанавливаем параметр centeredSlides для colorCarousel и colorSalon, если объекты определены
-if (colorCarousel && colorCarousel.swiper.params.slidesPerView > 1) {
+if (colorCarousel) {
   colorCarousel.swiper.params.centeredSlides = true
 }
-if (colorSalon && colorSalon.swiper.params.slidesPerView > 1) {
+if (
+  colorSalon &&
+  colorSalon.querySelector('.swiper-slide.swiper-slide-active')
+) {
   colorSalon.swiper.params.centeredSlides = true
 }
 
 // Устанавливаем параметр slideToClickedSlide для colorCarousel, diskDiametr и colorSalon, если объекты определены
-if (colorCarousel && colorCarousel.swiper.params.slidesPerView > 1) {
+if (
+  colorCarousel &&
+  colorCarousel.querySelector('.swiper-slide.swiper-slide-active')
+) {
   colorCarousel.swiper.params.slideToClickedSlide = true
 }
-if (diskDiametr && diskDiametr.swiper.params.slidesPerView > 1) {
+if (
+  diskDiametr &&
+  diskDiametr.querySelector('.swiper-slide.swiper-slide-active')
+) {
   diskDiametr.swiper.params.slideToClickedSlide = true
 }
-if (colorSalon && colorSalon.swiper.params.slidesPerView > 1) {
+if (
+  colorSalon &&
+  colorSalon.querySelector('.swiper-slide.swiper-slide-active')
+) {
   colorSalon.swiper.params.slideToClickedSlide = true
 }
 
 // Обновляем swiper для diskDiametr, colorCarousel и colorSalon, если объекты определены
-if (diskDiametr && diskDiametr.swiper.params.slidesPerView > 1) {
+if (
+  diskDiametr &&
+  diskDiametr.querySelector('.swiper-slide.swiper-slide-active')
+) {
   diskDiametr.swiper.update()
 }
-if (colorCarousel && colorCarousel.swiper.params.slidesPerView > 1) {
+if (
+  colorCarousel &&
+  colorCarousel.querySelector('.swiper-slide.swiper-slide-active')
+) {
   colorCarousel.swiper.update()
 }
-if (colorSalon && colorSalon.swiper.params.slidesPerView > 1) {
+if (
+  colorSalon &&
+  colorSalon.querySelector('.swiper-slide.swiper-slide-active')
+) {
   colorSalon.swiper.update()
 }
 
@@ -1479,7 +1506,10 @@ fetchCurrencyRates().then((data) => {
 modelNames.forEach((modelName) => {
   createAndAttachButtonClickHandler(modelName)
 })
-if (colorCarousel && colorCarousel.swiper.params.slidesPerView > 1) {
+if (
+  colorCarousel &&
+  colorCarousel.querySelector('.swiper-slide.swiper-slide-active')
+) {
   // СЛУШАЕМ ИЗМЕНЕНИЯ СЛАЙДЕРОВ
   colorCarousel.swiper.on('activeIndexChange', async (e) => {
     // Проверьте, не выполняется ли уже обновление карусели
@@ -1565,7 +1595,10 @@ if (colorCarousel && colorCarousel.swiper.params.slidesPerView > 1) {
   })
 }
 ;('5')
-if (colorSalon && colorSalon.swiper.params.slidesPerView > 1) {
+if (
+  colorSalon &&
+  colorSalon.querySelector('.swiper-slide.swiper-slide-active')
+) {
   colorSalon.swiper.on('activeIndexChange', async (e) => {
     // Проверьте, не выполняется ли уже обновление карусели
     if (isUpdatingCarousel) {
