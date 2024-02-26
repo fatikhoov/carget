@@ -4,7 +4,7 @@
   "description": "optimization js code for carget website",
   "main": "dist/index.min.js",
   "scripts": {
-    "js-min": "babel src/index.js -o dist/index.js && uglifyjs dist/index.js -o dist/index.min.js",
+    "js-min": "uglifyjs dist/index.js -o dist/index.min.js",
     "css-min": "npx postcss src/style.css > dist/style.min.css",
     "version-publish": "npm publish",
     "version-patch": "npm version patch",
