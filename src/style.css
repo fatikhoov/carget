@@ -204,6 +204,7 @@ header .elementor-container {
 }
 
 .swiper-slide-image {
+  height: min-content !important;
   cursor: pointer;
 }
 

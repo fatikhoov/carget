@@ -5,9 +5,11 @@ let pdfDoc
 let totalPrice = 0
 let indexDisk = 0
 let myArrowDiskImages
-let myDiskImage
+let myDiskImage, mySalonImage
 let isUpdatingCarousel = false
 let arrayImagesForPDF = [
+  'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
+  'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
   'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
 ]
 
@@ -206,39 +208,46 @@ const updateTitlePrice = () => {
       (obj) => obj.color === carState.options[option][1]
     )
     document.querySelector(selector).innerHTML = `
-      <div style="display:flex;flex-direction:column;">
-        <span style="font-weight:700;">${carState.options[option][1]}</span>
-        ${
-          optionSelect.sale !== 0 && optionSelect.sale
-            ? `<span style="font-weight:700;  display: flex; justify-content: center; gap: 8px;">${carState.options[option][0]} руб. <del style="text-decoration-color:#D10000; font-weight:300;">${optionSelect.sale} руб.</del></span>`
-            : `<span>${carState.options[option][0]} руб.</span>`
-        }
-      </div>`
+          <div style="display:flex;flex-direction:column;">
+            <span style="font-weight:700;">${carState.options[option][1]}</span>
+            ${
+              optionSelect.sale !== 0 && optionSelect.sale
+                ? `<span style="font-weight:700;  display: flex; justify-content: center; gap: 8px;">${carState.options[option][0]} руб. <del style="text-decoration-color:#D10000; font-weight:300;">${optionSelect.sale} руб.</del></span>`
+                : `<span>${carState.options[option][0]} руб.</span>`
+            }
+          </div>`
   }
 
   // ПРОВЕРКА НА ДИСКИ ДЛЯ ВЫГРУЗКИ ФОТО АВТО, ЕСЛИ FALSE ТО ВЫГРУЖАЮ ИЗ ПЕРВОЙ КАРУСЕЛИ
+
+  // Функция для установки содержимого изображения в чек и обновления массива изображений для PDF
+  function updateImages(imageElement) {
+    arrayImagesForPDF[1] = imageElement.src
+    checkImages[0].innerHTML = myDiskImage.outerHTML
+    updateCheck()
+  }
+
+  // Проверка состояния колес и наличия diskImage
   if (carState.options.wheels[3] === true && diskImage) {
     // ФОТО АВТО В ЧЕК
-    myDiskImage = diskImage.swiper.visibleSlides[0]
-    checkImages.forEach((e) => {
-      e.innerHTML = myDiskImage.innerHTML
-    })
-    arrayImagesForPDF[1] = myDiskImage.querySelector('.swiper-slide-image').src
-    updateCheck()
+    myDiskImage = diskImage.querySelector('.swiper-slide-active img')
+    if (myDiskImage) {
+      updateImages(myDiskImage)
+    }
   } else if (carState.options.wheels[3] === false && colorImageCarousel) {
-    myDiskImage = colorImageCarousel.querySelector('.swiper-slide-active')
-    checkImages.forEach((e) => {
-      e.innerHTML = myDiskImage.innerHTML
-    })
-    arrayImagesForPDF[1] = myDiskImage.querySelector('.swiper-slide-image').src
-    updateCheck()
+    myDiskImage = colorImageCarousel.querySelector('.swiper-slide-active img')
+    updateImages(myDiskImage)
   } else {
-    myDiskImage = colorImageCarousel.querySelector('.swiper-slide')
-    checkImages.forEach((e) => {
-      e.innerHTML = myDiskImage.innerHTML
-    })
-    arrayImagesForPDF[1] = myDiskImage.querySelector('.swiper-slide-image').src
-    updateCheck()
+    myDiskImage = colorImageCarousel.querySelector('.swiper-slide img')
+    updateImages(myDiskImage)
+  }
+
+  if (salonImage && salonImage.swiper) {
+    arrayImagesForPDF[2] = salonImage.querySelector(
+      '.swiper-slide-active img'
+    ).src
+  } else {
+    arrayImagesForPDF[2] = salonImage.querySelector('.swiper-slide img').src
   }
 }
 
@@ -261,90 +270,6 @@ document.addEventListener('DOMContentLoaded', async (event) => {
   }
   // Дожидаемся инициализации САЙТА
   await waitForSlider()
-
-  diskDiametr.swiper.on('activeIndexChange', async (e) => {
-    if (isUpdatingCarousel) {
-      return
-    }
-
-    try {
-      isUpdatingCarousel = true
-
-      const currentColor = indexOption('wheels', e.realIndex, 'index').color
-      const currentPrice = indexOption('wheels', e.realIndex, 'index').price
-      let activeSlideAlt = null
-      // Проверяем существование объекта diskDiametr и вызываем метод querySelector
-      if (diskDiametr) {
-        // Вызываем метод querySelector для объекта diskDiametr
-        const activeSlide = diskDiametr.querySelector(
-          '.swiper-slide-active img'
-        )
-        // Проверяем, что activeSlide не равен null или undefined
-        if (activeSlide) {
-          // Если activeSlide существует, получаем значение атрибута alt
-          activeSlideAlt = activeSlide.alt
-        }
-      }
-
-      const slideIndex = findSlideIndexByAlt(diskDiametr, activeSlideAlt)
-      const slideIndex2 = findSlideIndexByAlt(diskImage, activeSlideAlt)
-
-      if (slideIndex !== -1) {
-        carState.options.wheels[0] = currentPrice
-        carState.options.wheels[1] = currentColor
-        diskImage.swiper.slideTo(e.realIndex + 1, 400)
-        updateTitlePrice()
-      }
-
-      isUpdatingCarousel = false
-    } catch (error) {
-      console.error('Error in diskDiametr activeIndexChange event:', error)
-      isUpdatingCarousel = false
-    }
-  })
-  diskImage.swiper.on('activeIndexChange', async (e) => {
-    if (isUpdatingCarousel) {
-      return
-    }
-
-    try {
-      isUpdatingCarousel = true
-
-      const currentColor = indexOption('wheels', e.realIndex, 'index').color
-      const currentPrice = indexOption('wheels', e.realIndex, 'index').price
-      let activeSlideAlt = null
-      // Проверяем существование объекта diskDiametr и вызываем метод querySelector
-      if (diskDiametr) {
-        // Вызываем метод querySelector для объекта diskDiametr
-        const activeSlide = diskDiametr.querySelector(
-          '.swiper-slide-active img'
-        )
-        // Проверяем, что activeSlide не равен null или undefined
-        if (activeSlide) {
-          // Если activeSlide существует, получаем значение атрибута alt
-          activeSlideAlt = activeSlide.alt
-        }
-      }
-
-      const slideIndex = findSlideIndexByAlt(diskDiametr, activeSlideAlt)
-      const slideIndex2 = findSlideIndexByAlt(diskImage, activeSlideAlt)
-
-      if (slideIndex !== -1) {
-        carState.options.wheels[0] = currentPrice
-        carState.options.wheels[1] = currentColor
-        diskDiametr.swiper.slideTo(
-          e.realIndex + diskDiametr.swiper.params.slidesPerView,
-          400
-        )
-        updateTitlePrice()
-      }
-
-      isUpdatingCarousel = false
-    } catch (error) {
-      console.error('Error in diskImage activeIndexChange event:', error)
-      isUpdatingCarousel = false
-    }
-  })
 })
 
 // Показать или скрыть ДОП ОПЦИИ
@@ -426,13 +351,15 @@ const updateDopOptions = () => {
     checkboxLabel.textContent = option.title
     checkboxDescription.textContent = option.description
     checkboxSpan.innerHTML = `<div style="display:flex; gap:8px;">
-    <span style="font-weight:700;">${numberWithSpaces(option.price)} руб.</span>
-      ${
-        option.sale !== 0 && option.sale
-          ? `<del style="text-decoration-color:#D10000; font-weight:300; color: #000">${option.sale} руб.</del> `
-          : ''
-      } 
-  </div>`
+        <span style="font-weight:700;">${numberWithSpaces(
+          option.price
+        )} руб.</span>
+          ${
+            option.sale !== 0 && option.sale
+              ? `<del style="text-decoration-color:#D10000; font-weight:300; color: #000">${option.sale} руб.</del> `
+              : ''
+          } 
+      </div>`
 
     // Добавление слушателей событий для чекбоксов
     const handleClick = () => {
@@ -566,34 +493,34 @@ const innerPriceTitleModels = () => {
   // СКИДКА модели комплектации
   modelNames.forEach((modelName, index) => {
     divPriceModels[modelName].innerHTML = `
-      <div style="display:flex;flex-direction:column; gap: 8px;">
-      ${
-        carState.models[index][modelName].sale !== 0 &&
-        carState.models[index][modelName].sale
-          ? `<span style="font-size:16; font-weight:300"><del style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
-          : ''
-      }
-      <span style="font-weight:700;">${numberWithSpaces(
-        myPriceModels[index]
-      )} руб.</span>
-      </div>
-  `
+          <div style="display:flex;flex-direction:column; gap: 8px;">
+          ${
+            carState.models[index][modelName].sale !== 0 &&
+            carState.models[index][modelName].sale
+              ? `<span style="font-size:16; font-weight:300"><del style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
+              : ''
+          }
+          <span style="font-weight:700;">${numberWithSpaces(
+            myPriceModels[index]
+          )} руб.</span>
+          </div>
+      `
   })
 
   modelNames.forEach((modelName, index) => {
     const price = numberWithSpaces(myPriceModels[index])
     modelElements[modelName].acc.forEach((element) => {
       element.innerHTML = `
-    <div style="display:flex;flex-direction:column; gap: 8px;">
-      ${
-        carState.models[index][modelName].sale !== 0 &&
-        carState.models[index][modelName].sale
-          ? `<span style="font-size:20px; font-weight:300"><del  style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
-          : ''
-      }
-      <span style="font-weight:700;">${price} руб.</span>
-    </div>
-  `
+        <div style="display:flex;flex-direction:column; gap: 8px;">
+          ${
+            carState.models[index][modelName].sale !== 0 &&
+            carState.models[index][modelName].sale
+              ? `<span style="font-size:20px; font-weight:300"><del  style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
+              : ''
+          }
+          <span style="font-weight:700;">${price} руб.</span>
+        </div>
+      `
     })
 
     modelElements[modelName].accordionItem[0].appendChild(
@@ -850,10 +777,6 @@ async function updateCheck() {
       (priceItemDiscount.style.display = 'none')
   }
 
-  arrayImagesForPDF[2] =
-    salonImage.querySelector('.swiper-slide-active img')?.src ||
-    salonImage.querySelector('.swiper-slide-active img')
-
   await sumCarPrices(updatedCarState, myPriceModels)
   totalpriceElements.forEach((e) => {
     e.innerHTML = numberWithSpaces(sumCarPrices(carState, myPriceModels))
@@ -994,22 +917,69 @@ const updateWebsite = () => {
 }
 
 // Функция для преобразования изображения в Data URL
+
 async function loadImageAsDataURL(imagePath) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.onload = function () {
-      const reader = new FileReader()
-      reader.onload = function () {
-        resolve(reader.result)
-      }
-      reader.readAsDataURL(xhr.response)
+  try {
+    const response = await fetch(imagePath)
+    if (!response.ok) {
+      throw new Error('Failed to fetch image')
     }
-    xhr.onerror = reject
-    xhr.open('GET', imagePath)
-    xhr.responseType = 'blob'
-    xhr.send()
-  })
+
+    let blob = await response.blob() // Изменили const на let
+
+    const reader = new FileReader()
+    const isWebP = blob.type === 'image/webp'
+
+    if (isWebP) {
+      // Если изображение в формате WebP, конвертируем его в другой формат
+      const image = new Image()
+      image.src = URL.createObjectURL(blob)
+      await image.decode() // Дожидаемся загрузки изображения
+      const canvas = document.createElement('canvas')
+      canvas.width = image.width
+      canvas.height = image.height
+      const context = canvas.getContext('2d')
+      context.drawImage(image, 0, 0)
+      const convertedBlob = await new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Failed to convert image'))
+          }
+          resolve(blob)
+        })
+      })
+
+      blob = convertedBlob // Изменили присвоение значения константе
+    }
+
+    return new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch (error) {
+    throw new Error('Error loading image as Data URL: ' + error.message)
+  }
 }
+
+/*
+     async function loadImageAsDataURL(imagePath) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.onload = function () {
+          const reader = new FileReader()
+          reader.onload = function () {
+            resolve(reader.result)
+          }
+          reader.readAsDataURL(xhr.response)
+        }
+        xhr.onerror = reject
+        xhr.open('GET', imagePath)
+        xhr.responseType = 'blob'
+        xhr.send()
+      })
+    } 
+*/
 // Функция для вычисления суммы с процентом без десятых
 function calculateWithPercentage(sum, percentage) {
   return roundNumberToNChars(Math.ceil(sum * (1 + percentage / 100)), 4)
@@ -1152,26 +1122,30 @@ const myPDF = async () => {
     },
   ])
 
-  const imageDataURL = await loadImageAsDataURL(arrayImagesForPDF[0])
-  const tableBody5 = await Promise.all(
-    data5.map(async ({ img, contact }) => {
-      const i = await loadImageAsDataURL(img)
-      return [
-        {
-          image: i,
-          width: 24,
-          height: 24,
-          margin: [0, 0, 0, 16],
-        },
-        {
-          text: contact,
-          alignment: 'left',
-          fontSize: 12,
-          margin: [32, -36, 0, 16],
-        },
-      ]
-    })
-  )
+  /*
+       const imageDataURL = await loadImageAsDataURL(arrayImagesForPDF[0])
+      
+      
+      const tableBody5 = await Promise.all(
+        data5.map(async ({ img, contact }) => {
+          const i = await loadImageAsDataURL(img)
+          return [
+            {
+              image: i,
+              width: 24,
+              height: 24,
+              margin: [0, 0, 0, 16],
+            },
+            {
+              text: contact,
+              alignment: 'left',
+              fontSize: 12,
+              margin: [32, -36, 0, 16],
+            },
+          ]
+        })
+      )
+      */
 
   var pdfContent = {
     defaultFileName: `${carState.model[0]} ${carState.model[1]}.pdf`,
@@ -1459,18 +1433,286 @@ document.addEventListener('DOMContentLoaded', async (event) => {
   // ОБНОВИТЬ СТОИМОСТb В ШАПКЕ, В МОДЕЛЯХ H2
   // Устанавливаем параметр centeredSlides для colorCarousel и colorSalon, если объекты определены
 
-  colorCarousel.swiper.params.centeredSlides = true
-  colorSalon.swiper.params.centeredSlides = true
+  if (colorCarousel && colorCarousel.swiper) {
+    // Устанавливаем значение centeredSlides
+    colorCarousel.swiper.params.centeredSlides = true
+    // Устанавливаем значение slideToClickedSlide
+    colorCarousel.swiper.params.slideToClickedSlide = true
+    // Обновляем swiper
+    colorCarousel.swiper.update()
 
-  colorCarousel.swiper.params.slideToClickedSlide = true
-  diskDiametr.swiper.params.slideToClickedSlide = true
+    colorCarousel.swiper.on('activeIndexChange', async (e) => {
+      // Проверьте, не выполняется ли уже обновление карусели
+      if (isUpdatingCarousel) {
+        return
+      }
+      // Установите флаг блокировки
+      isUpdatingCarousel = true
 
-  colorSalon.swiper.params.slideToClickedSlide = true
-  diskDiametr.swiper.update()
+      try {
+        const newIndex = e.realIndex
+        const currentColorOption = indexOption('color', newIndex, 'index')
+        const currentColor = currentColorOption.color
+        const currentPrice = currentColorOption.price
 
-  colorCarousel.swiper.update()
+        // Проверяем, изменился ли цвет
+        if (carState.options.color[1] !== currentColor) {
+          carState.options.color[0] = currentPrice
+          carState.options.color[1] = currentColor
+          const eRealIndex = newIndex + 1
 
-  colorSalon.swiper.update()
+          await updateCarousel(
+            colorImageCarousel,
+            '#carget-acordion-color-price span',
+            carState.options.color,
+            eRealIndex
+          )
+
+          if (carState.options.wheels[3] === true) {
+            await updateCaruselDisk(`${currentColor}-${indexDisk}`)
+          } else {
+            updateTitlePrice()
+          }
+        } else {
+          const activeSlideAlt = colorCarousel.querySelector(
+            '.swiper-slide-active img'
+          ).alt
+          const slideIndex = findSlideIndexByAlt(colorCarousel, activeSlideAlt)
+
+          if (slideIndex !== -1) {
+            carState.options.color[0] = currentPrice
+            carState.options.color[1] = currentColor
+            colorImageCarousel.swiper.slideTo(newIndex + 1, 400)
+            if (carState.options.wheels[3] === true) {
+              await updateCaruselDisk(`${currentColor}-${indexDisk}`)
+            } else {
+              updateTitlePrice()
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error in colorCarousel activeIndexChange event:', error)
+      } finally {
+        isUpdatingCarousel = false
+      }
+    })
+  }
+  if (colorImageCarousel && colorImageCarousel.swiper) {
+    colorImageCarousel.swiper.on('activeIndexChange', async (e) => {
+      // Проверьте, не выполняется ли уже обновление карусели
+      if (isUpdatingCarousel) {
+        return
+      }
+
+      // Установите флаг блокировки
+      isUpdatingCarousel = true
+      carState.options.color[0] = carState.options.color[2][e.realIndex].price
+      carState.options.color[1] = indexColor(e.realIndex, 'index')
+
+      if (carState.options.wheels[3] === true) {
+        updateCaruselDisk(
+          `${indexOption('color', e.realIndex, 'index').color}-0`
+        )
+      } else if (carState.options.wheels[3] === false) {
+        setTimeout(() => {
+          updateTitlePrice()
+        }, 200)
+      }
+
+      colorCarousel.swiper.slideTo(
+        e.realIndex + colorCarousel.swiper.params.slidesPerView,
+        500
+      )
+      // Сбросьте флаг после завершения обновления карусели
+      isUpdatingCarousel = false
+    })
+  }
+
+  // Проверка на существование colorSalon.swiper
+  if (colorSalon && colorSalon.swiper) {
+    // Устанавливаем значение centeredSlides
+    colorSalon.swiper.params.centeredSlides = true
+    // Устанавливаем значение slideToClickedSlide
+    colorSalon.swiper.params.slideToClickedSlide = true
+    // Обновляем swiper
+    colorSalon.swiper.update()
+
+    colorSalon.swiper.on('activeIndexChange', async (e) => {
+      // Проверьте, не выполняется ли уже обновление карусели
+      if (isUpdatingCarousel) {
+        return
+      }
+
+      // Установите флаг блокировки
+      try {
+        isUpdatingCarousel = true
+
+        const currentColor = indexOption(
+          'interiorColor',
+          e.realIndex,
+          'index'
+        ).color
+        const currentPrice = indexOption(
+          'interiorColor',
+          e.realIndex,
+          'index'
+        ).price
+        const activeSlideAlt = colorSalon.querySelector(
+          '.swiper-slide-active img'
+        ).alt
+        const slideIndex = findSlideIndexByAlt(colorSalon, activeSlideAlt)
+
+        if (slideIndex !== -1) {
+          carState.options.interiorColor[0] = currentPrice
+          carState.options.interiorColor[1] = currentColor
+          salonImage.swiper.slideTo(e.realIndex + 1, 400)
+          updateTitlePrice()
+        }
+        isUpdatingCarousel = false
+      } catch (error) {
+        console.error('Error in diskDiametr activeIndexChange event:', error)
+        isUpdatingCarousel = false
+      }
+    })
+  }
+  if (salonImage && salonImage.swiper) {
+    salonImage.swiper.on('activeIndexChange', async (e) => {
+      // Проверьте, не выполняется ли уже обновление карусели
+      if (isUpdatingCarousel) {
+        return
+      }
+
+      try {
+        isUpdatingCarousel = true
+
+        const currentColor = indexOption(
+          'interiorColor',
+          e.realIndex,
+          'index'
+        ).color
+        const currentPrice = indexOption(
+          'interiorColor',
+          e.realIndex,
+          'index'
+        ).price
+        const activeSlideAlt = colorSalon.querySelector(
+          '.swiper-slide-active img'
+        ).alt
+
+        const slideIndex = findSlideIndexByAlt(colorSalon, activeSlideAlt)
+
+        if (slideIndex !== -1) {
+          carState.options.interiorColor[0] = currentPrice
+          carState.options.interiorColor[1] = currentColor
+          colorSalon.swiper.slideTo(
+            e.realIndex + colorSalon.swiper.params.slidesPerView,
+            400
+          )
+          updateTitlePrice()
+        }
+
+        isUpdatingCarousel = false
+      } catch (error) {
+        console.error('Error in diskImage activeIndexChange event:', error)
+        isUpdatingCarousel = false
+      }
+    })
+  }
+
+  // Проверка на существование diskDiametr.swiper
+  if (diskDiametr && diskDiametr.swiper) {
+    diskDiametr.swiper.params.centeredSlides = true
+
+    diskDiametr.swiper.params.slideToClickedSlide = true
+    // Обновляем swiper
+    diskDiametr.swiper.update()
+
+    diskDiametr.swiper.on('activeIndexChange', async (e) => {
+      if (isUpdatingCarousel) {
+        return
+      }
+
+      try {
+        isUpdatingCarousel = true
+
+        const currentColor = indexOption('wheels', e.realIndex, 'index').color
+        const currentPrice = indexOption('wheels', e.realIndex, 'index').price
+        let activeSlideAlt = null
+        // Проверяем существование объекта diskDiametr и вызываем метод querySelector
+        if (diskDiametr) {
+          // Вызываем метод querySelector для объекта diskDiametr
+          const activeSlide = diskDiametr.querySelector(
+            '.swiper-slide-active img'
+          )
+          // Проверяем, что activeSlide не равен null или undefined
+          if (activeSlide) {
+            // Если activeSlide существует, получаем значение атрибута alt
+            activeSlideAlt = activeSlide.alt
+          }
+        }
+
+        const slideIndex = findSlideIndexByAlt(diskDiametr, activeSlideAlt)
+        const slideIndex2 = findSlideIndexByAlt(diskImage, activeSlideAlt)
+
+        if (slideIndex !== -1) {
+          carState.options.wheels[0] = currentPrice
+          carState.options.wheels[1] = currentColor
+          diskImage.swiper.slideTo(e.realIndex + 1, 400)
+          updateTitlePrice()
+        }
+
+        isUpdatingCarousel = false
+      } catch (error) {
+        console.error('Error in diskDiametr activeIndexChange event:', error)
+        isUpdatingCarousel = false
+      }
+    })
+  }
+  if (diskImage && diskImage.swiper) {
+    diskImage.swiper.on('activeIndexChange', async (e) => {
+      if (isUpdatingCarousel) {
+        return
+      }
+
+      try {
+        isUpdatingCarousel = true
+
+        const currentColor = indexOption('wheels', e.realIndex, 'index').color
+        const currentPrice = indexOption('wheels', e.realIndex, 'index').price
+        let activeSlideAlt = null
+        // Проверяем существование объекта diskDiametr и вызываем метод querySelector
+        if (diskDiametr) {
+          // Вызываем метод querySelector для объекта diskDiametr
+          const activeSlide = diskDiametr.querySelector(
+            '.swiper-slide-active img'
+          )
+          // Проверяем, что activeSlide не равен null или undefined
+          if (activeSlide) {
+            // Если activeSlide существует, получаем значение атрибута alt
+            activeSlideAlt = activeSlide.alt
+          }
+        }
+
+        const slideIndex = findSlideIndexByAlt(diskDiametr, activeSlideAlt)
+        const slideIndex2 = findSlideIndexByAlt(diskImage, activeSlideAlt)
+
+        if (slideIndex !== -1) {
+          carState.options.wheels[0] = currentPrice
+          carState.options.wheels[1] = currentColor
+          diskDiametr.swiper.slideTo(
+            e.realIndex + diskDiametr.swiper.params.slidesPerView,
+            400
+          )
+          updateTitlePrice()
+        }
+
+        isUpdatingCarousel = false
+      } catch (error) {
+        console.error('Error in diskImage activeIndexChange event:', error)
+        isUpdatingCarousel = false
+      }
+    })
+  }
 
   fetchCurrencyRates().then((data) => {
     updatedCarState = convertCarState(carState)
@@ -1493,168 +1735,6 @@ document.addEventListener('DOMContentLoaded', async (event) => {
   // Обработчик для кнопки "ВЫБРАНО"
   modelNames.forEach((modelName) => {
     createAndAttachButtonClickHandler(modelName)
-  })
-
-  // СЛУШАЕМ ИЗМЕНЕНИЯ СЛАЙДЕРОВ
-  colorCarousel.swiper.on('activeIndexChange', async (e) => {
-    // Проверьте, не выполняется ли уже обновление карусели
-    if (isUpdatingCarousel) {
-      return
-    }
-    // Установите флаг блокировки
-    isUpdatingCarousel = true
-
-    try {
-      const newIndex = e.realIndex
-      const currentColorOption = indexOption('color', newIndex, 'index')
-      const currentColor = currentColorOption.color
-      const currentPrice = currentColorOption.price
-
-      // Проверяем, изменился ли цвет
-      if (carState.options.color[1] !== currentColor) {
-        carState.options.color[0] = currentPrice
-        carState.options.color[1] = currentColor
-        const eRealIndex = newIndex + 1
-
-        await updateCarousel(
-          colorImageCarousel,
-          '#carget-acordion-color-price span',
-          carState.options.color,
-          eRealIndex
-        )
-
-        if (carState.options.wheels[3] === true) {
-          await updateCaruselDisk(`${currentColor}-${indexDisk}`)
-        } else {
-          updateTitlePrice()
-        }
-      } else {
-        const activeSlideAlt = colorCarousel.querySelector(
-          '.swiper-slide-active img'
-        ).alt
-        const slideIndex = findSlideIndexByAlt(colorCarousel, activeSlideAlt)
-
-        if (slideIndex !== -1) {
-          carState.options.color[0] = currentPrice
-          carState.options.color[1] = currentColor
-          colorImageCarousel.swiper.slideTo(newIndex + 1, 400)
-          if (carState.options.wheels[3] === true) {
-            await updateCaruselDisk(`${currentColor}-${indexDisk}`)
-          } else {
-            updateTitlePrice()
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error in colorCarousel activeIndexChange event:', error)
-    } finally {
-      isUpdatingCarousel = false
-    }
-  })
-  colorImageCarousel.swiper.on('activeIndexChange', async (e) => {
-    // Проверьте, не выполняется ли уже обновление карусели
-    if (isUpdatingCarousel) {
-      return
-    }
-
-    // Установите флаг блокировки
-    isUpdatingCarousel = true
-    carState.options.color[0] = carState.options.color[2][e.realIndex].price
-    carState.options.color[1] = indexColor(e.realIndex, 'index')
-
-    if (carState.options.wheels[3] === true) {
-      updateCaruselDisk(`${indexOption('color', e.realIndex, 'index').color}-0`)
-    } else if (carState.options.wheels[3] === false) {
-      setTimeout(() => {
-        updateTitlePrice()
-      }, 200)
-    }
-
-    colorCarousel.swiper.slideTo(
-      e.realIndex + colorCarousel.swiper.params.slidesPerView,
-      500
-    )
-    // Сбросьте флаг после завершения обновления карусели
-    isUpdatingCarousel = false
-  })
-
-  colorSalon.swiper.on('activeIndexChange', async (e) => {
-    // Проверьте, не выполняется ли уже обновление карусели
-    if (isUpdatingCarousel) {
-      return
-    }
-
-    // Установите флаг блокировки
-    try {
-      isUpdatingCarousel = true
-
-      const currentColor = indexOption(
-        'interiorColor',
-        e.realIndex,
-        'index'
-      ).color
-      const currentPrice = indexOption(
-        'interiorColor',
-        e.realIndex,
-        'index'
-      ).price
-      const activeSlideAlt = colorSalon.querySelector(
-        '.swiper-slide-active img'
-      ).alt
-      const slideIndex = findSlideIndexByAlt(colorSalon, activeSlideAlt)
-
-      if (slideIndex !== -1) {
-        carState.options.interiorColor[0] = currentPrice
-        carState.options.interiorColor[1] = currentColor
-        salonImage.swiper.slideTo(e.realIndex + 1, 400)
-        updateTitlePrice()
-      }
-      isUpdatingCarousel = false
-    } catch (error) {
-      console.error('Error in diskDiametr activeIndexChange event:', error)
-      isUpdatingCarousel = false
-    }
-  })
-  salonImage.swiper.on('activeIndexChange', async (e) => {
-    // Проверьте, не выполняется ли уже обновление карусели
-    if (isUpdatingCarousel) {
-      return
-    }
-
-    try {
-      isUpdatingCarousel = true
-
-      const currentColor = indexOption(
-        'interiorColor',
-        e.realIndex,
-        'index'
-      ).color
-      const currentPrice = indexOption(
-        'interiorColor',
-        e.realIndex,
-        'index'
-      ).price
-      const activeSlideAlt = colorSalon.querySelector(
-        '.swiper-slide-active img'
-      ).alt
-
-      const slideIndex = findSlideIndexByAlt(colorSalon, activeSlideAlt)
-
-      if (slideIndex !== -1) {
-        carState.options.interiorColor[0] = currentPrice
-        carState.options.interiorColor[1] = currentColor
-        colorSalon.swiper.slideTo(
-          e.realIndex + colorSalon.swiper.params.slidesPerView,
-          400
-        )
-        updateTitlePrice()
-      }
-
-      isUpdatingCarousel = false
-    } catch (error) {
-      console.error('Error in diskImage activeIndexChange event:', error)
-      isUpdatingCarousel = false
-    }
   })
 
   document.querySelectorAll('.generate-pdf').forEach((e) => {
