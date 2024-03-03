@@ -932,8 +932,8 @@ const updateWebsite = () => {
 
 async function loadImageAsDataURL(imagePath) {
   // Проверяем, является ли переданный путь уже Data URL
-  if (imagePath.startsWith('data:image')) {
-    return imagePath // Если это Data URL, возвращаем его без изменений
+  if (!imagePath || imagePath.startsWith('data:image')) {
+    return imagePath; // Если это пустое значение или Data URL, возвращаем его без изменений
   }
   try {
     console.log('test:', imagePath)
