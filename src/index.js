@@ -1261,9 +1261,10 @@ const myPDF = async () => {
                   {
                     fontSize: 10,
                     border: [0, 0, 0, 0],
-                    stack: carState.options.runningBoards[1]
-                      ? [{ text: optionsText, border: [0, 0, 0, 0] }]
-                      : [{ text: 'Нет', border: [0, 0, 0, 0] }],
+                    stack:
+                      optionsText !== ''
+                        ? [{ text: optionsText, border: [0, 0, 0, 0] }]
+                        : [{ text: 'Нет', border: [0, 0, 0, 0] }],
                     margin: [-130, 0, 4, 4],
                   },
                 ],
