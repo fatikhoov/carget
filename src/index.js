@@ -224,7 +224,6 @@ const updateTitlePrice = () => {
   function updateImages(imageElement) {
     arrayImagesForPDF[1] = imageElement.src
     checkImages[0].innerHTML = myDiskImage.outerHTML
-    updateCheck()
   }
 
   // Проверка состояния колес и наличия diskImage
@@ -249,6 +248,8 @@ const updateTitlePrice = () => {
   } else {
     arrayImagesForPDF[2] = salonImage.querySelector('.swiper-slide img').src
   }
+
+  updateCheck()
 }
 
 //Диски
