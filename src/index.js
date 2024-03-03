@@ -1303,7 +1303,7 @@ const myPDF = async () => {
         bold: true,
       },
       { ul: tableBodycomplectData, margin: [0, 0, 0, 16] },
-      { ul: tableBodydescriptionData },
+      { ul: tableBodydescriptionData, margin: [0, 0, 0, 16] },
       {
         text: 'ПОЧЕМУ СТОИТ ВЫБРАТЬ CARGET?',
         margin: [0, 32, 0, 16],
