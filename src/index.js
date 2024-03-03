@@ -933,7 +933,7 @@ const updateWebsite = () => {
 async function loadImageAsDataURL(imagePath) {
   // Проверяем, является ли переданный путь уже Data URL
   if (!imagePath || imagePath.startsWith('data:image')) {
-    return imagePath; // Если это пустое значение или Data URL, возвращаем его без изменений
+    return imagePath // Если это пустое значение или Data URL, возвращаем его без изменений
   }
   try {
     console.log('test:', imagePath)
@@ -1064,8 +1064,9 @@ const myPDF = async () => {
   // Функция для извлечения текста из элементов списка и создания массива данных
   function extractTextFromList(list) {
     return Array.from(list).map((item) => {
-      const text = item.textContent.trim()
-      return text.substring(text.indexOf('⚙️') + 1).trim()
+      const text = item.innerHTML.trim()
+      const cleanedText = text.replace(/<[^>]*>/g, '') // Удаляем все HTML-теги и их содержимое
+      return cleanedText
     })
   }
 
