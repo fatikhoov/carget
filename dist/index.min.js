@@ -12,7 +12,6 @@ let arrayImagesForPDF = [
   'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
   'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
 ]
-
 const arrayTitlePrice = {
   color: '#carget-acordion-color-price span',
   wheels: '#carget-acordion-wheels-price span',
@@ -208,47 +207,58 @@ const updateTitlePrice = () => {
       (obj) => obj.color === carState.options[option][1]
     )
     document.querySelector(selector).innerHTML = `
-          <div style="display:flex;flex-direction:column;">
-            <span style="font-weight:700;">${carState.options[option][1]}</span>
-            ${
-              optionSelect.sale !== 0 && optionSelect.sale
-                ? `<span style="font-weight:700;  display: flex; justify-content: center; gap: 8px;">${carState.options[option][0]} руб. <del style="text-decoration-color:#D10000; font-weight:300;">${optionSelect.sale} руб.</del></span>`
-                : `<span>${carState.options[option][0]} руб.</span>`
-            }
-          </div>`
+            <div style="display:flex;flex-direction:column;">
+              <span style="font-weight:700;">${
+                carState.options[option][1]
+              }</span>
+              ${
+                optionSelect.sale !== 0 && optionSelect.sale
+                  ? `<span style="font-weight:700;  display: flex; justify-content: center; gap: 8px;">${carState.options[option][0]} руб. <del style="text-decoration-color:#D10000; font-weight:300;">${optionSelect.sale} руб.</del></span>`
+                  : `<span>${carState.options[option][0]} руб.</span>`
+              }
+            </div>`
   }
 
   // ПРОВЕРКА НА ДИСКИ ДЛЯ ВЫГРУЗКИ ФОТО АВТО, ЕСЛИ FALSE ТО ВЫГРУЖАЮ ИЗ ПЕРВОЙ КАРУСЕЛИ
 
   // Функция для установки содержимого изображения в чек и обновления массива изображений для PDF
   function updateImages(imageElement) {
-    arrayImagesForPDF[1] = imageElement.src
+    arrayImagesForPDF[1] = imageElement
+      .querySelector('img')
+      .getAttribute('data-src')
     checkImages[0].innerHTML = myDiskImage.outerHTML
+    console.log('updateImages: imageElement:', imageElement)
   }
 
   // Проверка состояния колес и наличия diskImage
   if (carState.options.wheels[3] === true && diskImage) {
     // ФОТО АВТО В ЧЕК
-    myDiskImage = diskImage.querySelector('.swiper-slide-active img')
+    myDiskImage = diskImage.querySelector('.swiper-slide-active')
     if (myDiskImage) {
+      // Копируем src изображения перед обновлением массива
       updateImages(myDiskImage)
     }
   } else if (carState.options.wheels[3] === false && colorImageCarousel) {
-    myDiskImage = colorImageCarousel.querySelector('.swiper-slide-active img')
-    updateImages(myDiskImage)
+    myDiskImage = colorImageCarousel.querySelector('.swiper-slide-active')
+    if (myDiskImage) {
+      // Копируем src изображения перед обновлением массива
+      updateImages(myDiskImage)
+    }
   } else {
-    myDiskImage = colorImageCarousel.querySelector('.swiper-slide img')
+    myDiskImage = colorImageCarousel.querySelector('.swiper-slide')
+    // Копируем src изображения перед обновлением массива
     updateImages(myDiskImage)
   }
 
   if (salonImage && salonImage.swiper) {
-    arrayImagesForPDF[2] = salonImage.querySelector(
-      '.swiper-slide-active img'
-    ).src
+    arrayImagesForPDF[2] = salonImage
+      .querySelector('.swiper-slide-active img')
+      .getAttribute('data-src')
   } else {
-    arrayImagesForPDF[2] = salonImage.querySelector('.swiper-slide img').src
+    arrayImagesForPDF[2] = salonImage
+      .querySelector('.swiper-slide img')
+      .getAttribute('data-src')
   }
-
   updateCheck()
 }
 
@@ -352,15 +362,15 @@ const updateDopOptions = () => {
     checkboxLabel.textContent = option.title
     checkboxDescription.textContent = option.description
     checkboxSpan.innerHTML = `<div style="display:flex; gap:8px;">
-        <span style="font-weight:700;">${numberWithSpaces(
-          option.price
-        )} руб.</span>
-          ${
-            option.sale !== 0 && option.sale
-              ? `<del style="text-decoration-color:#D10000; font-weight:300; color: #000">${option.sale} руб.</del> `
-              : ''
-          } 
-      </div>`
+          <span style="font-weight:700;">${numberWithSpaces(
+            option.price
+          )} руб.</span>
+            ${
+              option.sale !== 0 && option.sale
+                ? `<del style="text-decoration-color:#D10000; font-weight:300; color: #000">${option.sale} руб.</del> `
+                : ''
+            } 
+        </div>`
 
     // Добавление слушателей событий для чекбоксов
     const handleClick = () => {
@@ -494,34 +504,34 @@ const innerPriceTitleModels = () => {
   // СКИДКА модели комплектации
   modelNames.forEach((modelName, index) => {
     divPriceModels[modelName].innerHTML = `
-          <div style="display:flex;flex-direction:column; gap: 8px;">
-          ${
-            carState.models[index][modelName].sale !== 0 &&
-            carState.models[index][modelName].sale
-              ? `<span style="font-size:16; font-weight:300"><del style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
-              : ''
-          }
-          <span style="font-weight:700;">${numberWithSpaces(
-            myPriceModels[index]
-          )} руб.</span>
-          </div>
-      `
+            <div style="display:flex;flex-direction:column; gap: 8px;">
+            ${
+              carState.models[index][modelName].sale !== 0 &&
+              carState.models[index][modelName].sale
+                ? `<span style="font-size:16; font-weight:300"><del style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
+                : ''
+            }
+            <span style="font-weight:700;">${numberWithSpaces(
+              myPriceModels[index]
+            )} руб.</span>
+            </div>
+        `
   })
 
   modelNames.forEach((modelName, index) => {
     const price = numberWithSpaces(myPriceModels[index])
     modelElements[modelName].acc.forEach((element) => {
       element.innerHTML = `
-        <div style="display:flex;flex-direction:column; gap: 8px;">
-          ${
-            carState.models[index][modelName].sale !== 0 &&
-            carState.models[index][modelName].sale
-              ? `<span style="font-size:20px; font-weight:300"><del  style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
-              : ''
-          }
-          <span style="font-weight:700;">${price} руб.</span>
-        </div>
-      `
+          <div style="display:flex;flex-direction:column; gap: 8px;">
+            ${
+              carState.models[index][modelName].sale !== 0 &&
+              carState.models[index][modelName].sale
+                ? `<span style="font-size:20px; font-weight:300"><del  style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
+                : ''
+            }
+            <span style="font-weight:700;">${price} руб.</span>
+          </div>
+        `
     })
 
     modelElements[modelName].accordionItem[0].appendChild(
@@ -915,26 +925,32 @@ const updateWebsite = () => {
   innerPriceHeader()
   innerPriceTitleModels()
   updateTitlePrice()
+  myPDF()
 }
 
 // Функция для преобразования изображения в Data URL
 
 async function loadImageAsDataURL(imagePath) {
+  // Проверяем, является ли переданный путь уже Data URL
+  if (imagePath.startsWith('data:image')) {
+    return imagePath // Если это Data URL, возвращаем его без изменений
+  }
   try {
+    console.log('test:', imagePath)
     const response = await fetch(imagePath)
     if (!response.ok) {
       throw new Error('Failed to fetch image')
     }
 
     let blob = await response.blob() // Изменили const на let
-
+    console.log('loadImageAsDataURL: imagePath:', imagePath)
+    console.log('loadImageAsDataURL: blob type:', blob.type)
     const reader = new FileReader()
 
     // Проверяем, является ли тип изображения WebP или PNG
     const isWebP = blob.type === 'image/webp'
-    const isPNG = blob.type === 'image/png'
 
-    if (isWebP || isPNG) {
+    if (isWebP) {
       // Если изображение в формате WebP или PNG, конвертируем его в другой формат
       const image = new Image()
       image.src = URL.createObjectURL(blob)
@@ -945,15 +961,12 @@ async function loadImageAsDataURL(imagePath) {
       const context = canvas.getContext('2d')
       context.drawImage(image, 0, 0)
       const convertedBlob = await new Promise((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Failed to convert image'))
-            }
-            resolve(blob)
-          },
-          isPNG ? 'image/jpeg' : null
-        ) // Если изображение в формате PNG, конвертируем его в JPEG
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Failed to convert image'))
+          }
+          resolve(blob)
+        }) // Если изображение в формате PNG, конвертируем его в JPEG
       })
 
       blob = convertedBlob // Изменили присвоение значения константе
@@ -1111,6 +1124,18 @@ const myPDF = async () => {
     },
   ])
 
+  async function loadImageAsDataURLWithLogging(imagePath) {
+    try {
+      console.log('Before loading image:', imagePath)
+      const imageDataURL = await loadImageAsDataURL(imagePath)
+      console.log('After loading image:', imagePath)
+      return imageDataURL
+    } catch (error) {
+      console.error('Error loading image:', error)
+      throw error
+    }
+  }
+
   var pdfContent = {
     defaultFileName: `${carState.model[0]} ${carState.model[1]}.pdf`,
     pageOrientation: 'portrait',
@@ -1254,13 +1279,13 @@ const myPDF = async () => {
 
       // ФОТО АВТО И САЛОНА
       {
-        image: await loadImageAsDataURL(arrayImagesForPDF[1]),
+        image: await loadImageAsDataURLWithLogging(arrayImagesForPDF[1]),
         width: 400,
         margin: [0, 32, 0, 0],
         alignment: 'center',
       },
       {
-        image: await loadImageAsDataURL(arrayImagesForPDF[2]),
+        image: await loadImageAsDataURLWithLogging(arrayImagesForPDF[2]),
         width: 340,
         margin: [0, 16, 0, 0],
         alignment: 'center',

@@ -108,6 +108,10 @@
 }
 
 @media screen and (min-width: 640px) {
+  .check-list-image .swiper-slide-active {
+    width: 100% !important;
+    transform: none !important;
+  }
   .dop-options-wrapper .elementor-widget-wrap {
     display: flex;
     justify-content: space-between;
