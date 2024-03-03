@@ -928,10 +928,13 @@ async function loadImageAsDataURL(imagePath) {
     let blob = await response.blob() // Изменили const на let
 
     const reader = new FileReader()
-    const isWebP = blob.type === 'image/webp'
 
-    if (isWebP) {
-      // Если изображение в формате WebP, конвертируем его в другой формат
+    // Проверяем, является ли тип изображения WebP или PNG
+    const isWebP = blob.type === 'image/webp'
+    const isPNG = blob.type === 'image/png'
+
+    if (isWebP || isPNG) {
+      // Если изображение в формате WebP или PNG, конвертируем его в другой формат
       const image = new Image()
       image.src = URL.createObjectURL(blob)
       await image.decode() // Дожидаемся загрузки изображения
@@ -941,12 +944,15 @@ async function loadImageAsDataURL(imagePath) {
       const context = canvas.getContext('2d')
       context.drawImage(image, 0, 0)
       const convertedBlob = await new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject(new Error('Failed to convert image'))
-          }
-          resolve(blob)
-        })
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Failed to convert image'))
+            }
+            resolve(blob)
+          },
+          isPNG ? 'image/jpeg' : null
+        ) // Если изображение в формате PNG, конвертируем его в JPEG
       })
 
       blob = convertedBlob // Изменили присвоение значения константе
@@ -962,24 +968,6 @@ async function loadImageAsDataURL(imagePath) {
   }
 }
 
-/*
-     async function loadImageAsDataURL(imagePath) {
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest()
-        xhr.onload = function () {
-          const reader = new FileReader()
-          reader.onload = function () {
-            resolve(reader.result)
-          }
-          reader.readAsDataURL(xhr.response)
-        }
-        xhr.onerror = reject
-        xhr.open('GET', imagePath)
-        xhr.responseType = 'blob'
-        xhr.send()
-      })
-    } 
-*/
 // Функция для вычисления суммы с процентом без десятых
 function calculateWithPercentage(sum, percentage) {
   return roundNumberToNChars(Math.ceil(sum * (1 + percentage / 100)), 4)
@@ -1121,31 +1109,6 @@ const myPDF = async () => {
       margin: [40, 0, 0, 0],
     },
   ])
-
-  /*
-       const imageDataURL = await loadImageAsDataURL(arrayImagesForPDF[0])
-      
-      
-      const tableBody5 = await Promise.all(
-        data5.map(async ({ img, contact }) => {
-          const i = await loadImageAsDataURL(img)
-          return [
-            {
-              image: i,
-              width: 24,
-              height: 24,
-              margin: [0, 0, 0, 16],
-            },
-            {
-              text: contact,
-              alignment: 'left',
-              fontSize: 12,
-              margin: [32, -36, 0, 16],
-            },
-          ]
-        })
-      )
-      */
 
   var pdfContent = {
     defaultFileName: `${carState.model[0]} ${carState.model[1]}.pdf`,
