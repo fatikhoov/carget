@@ -1065,8 +1065,11 @@ const myPDF = async () => {
   function extractTextFromList(list) {
     return Array.from(list).map((item) => {
       const text = item.innerHTML.trim()
-      const cleanedText = text.replace(/<[^>]*>/g, '') // Удаляем все HTML-теги и их содержимое
-      return cleanedText
+      const cleanedText = text
+        .replace(/<[^>]*>/g, '') // Удаляем все HTML-теги и их содержимое
+        .replace(/\n+/g, ' ') // Заменяем все переносы строк на пробелы
+        .replace(/\s+/g, ' ') // Заменяем последовательности пробелов на одиночные пробелы
+      return cleanedText.trim() // Удаляем пробелы в начале и конце строки
     })
   }
 
