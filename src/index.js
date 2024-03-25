@@ -199,8 +199,78 @@ async function updateCarousel(
   carouselElement.swiper.slideTo(dc, 400)
   updateTitlePrice()
 }
+
+// ПРОВЕРКА НА ДИСКИ ДЛЯ ВЫГРУЗКИ ФОТО АВТО, ЕСЛИ FALSE ТО ВЫГРУЖАЮ ИЗ ПЕРВОЙ КАРУСЕЛИ
+
+// Функция для установки содержимого изображения в чек и обновления массива изображений для PDF
+async function updateImages(imageElement) {
+  arrayImagesForPDF[1] =
+    (await imageElement.querySelector('img').getAttribute('data-src')) ||
+    imageElement.querySelector('img').getAttribute('src')
+  checkImages[0].innerHTML = myDiskImage.outerHTML
+}
+
+async function loadImageAsDataURLWithLogging(imagePath) {
+  try {
+    const imageDataURL = await loadImageAsDataURL(imagePath)
+    return imageDataURL
+  } catch (error) {
+    console.error('Error loading image:', error)
+    throw error
+  }
+}
+// Функция для преобразования изображения в Data URL
+async function loadImageAsDataURL(imagePath) {
+  // Проверяем, является ли переданный путь уже Data URL
+  if (!imagePath || imagePath.startsWith('data:image')) {
+    return imagePath // Если это пустое значение или Data URL, возвращаем его без изменений
+  }
+  try {
+    const response = await fetch(imagePath)
+    if (!response.ok) {
+      throw new Error('Failed to fetch image')
+    }
+
+    let blob = await response.blob() // Изменили const на let
+    const reader = new FileReader()
+
+    // Проверяем, является ли тип изображения WebP или PNG
+    const isWebP = blob.type === 'image/webp'
+
+    if (isWebP) {
+      // Если изображение в формате WebP или PNG, конвертируем его в другой формат
+      const image = new Image()
+      image.src = URL.createObjectURL(blob)
+      await image.decode() // Дожидаемся загрузки изображения
+      const canvas = document.createElement('canvas')
+      canvas.width = image.width
+      canvas.height = image.height
+      const context = canvas.getContext('2d')
+      context.drawImage(image, 0, 0)
+      const convertedBlob = await new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Failed to convert image'))
+          }
+          resolve(blob)
+        }) // Если изображение в формате PNG, конвертируем его в JPEG
+      })
+
+      blob = convertedBlob // Изменили присвоение значения константе
+    }
+
+    return new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch (error) {
+    throw new Error('Error loading image as Data URL: ' + error.message)
+  }
+}
+
 // СКИДКА заголовки параметров
-const updateTitlePrice = () => {
+const updateTitlePrice = async () => {
   for (const option in arrayTitlePrice) {
     const selector = arrayTitlePrice[option]
     const optionSelect = carState.options[option][2].find(
@@ -219,46 +289,38 @@ const updateTitlePrice = () => {
             </div>`
   }
 
-  // ПРОВЕРКА НА ДИСКИ ДЛЯ ВЫГРУЗКИ ФОТО АВТО, ЕСЛИ FALSE ТО ВЫГРУЖАЮ ИЗ ПЕРВОЙ КАРУСЕЛИ
-
-  // Функция для установки содержимого изображения в чек и обновления массива изображений для PDF
-  function updateImages(imageElement) {
-    arrayImagesForPDF[1] = imageElement
-      .querySelector('img')
-      .getAttribute('data-src')
-    checkImages[0].innerHTML = myDiskImage.outerHTML
-    console.log('updateImages: imageElement:', imageElement)
-  }
-
   // Проверка состояния колес и наличия diskImage
   if (carState.options.wheels[3] === true && diskImage) {
     // ФОТО АВТО В ЧЕК
     myDiskImage = diskImage.querySelector('.swiper-slide-active')
     if (myDiskImage) {
       // Копируем src изображения перед обновлением массива
-      updateImages(myDiskImage)
+      await updateImages(myDiskImage)
     }
   } else if (carState.options.wheels[3] === false && colorImageCarousel) {
     myDiskImage = colorImageCarousel.querySelector('.swiper-slide-active')
     if (myDiskImage) {
       // Копируем src изображения перед обновлением массива
-      updateImages(myDiskImage)
+      await updateImages(myDiskImage)
     }
   } else {
     myDiskImage = colorImageCarousel.querySelector('.swiper-slide')
     // Копируем src изображения перед обновлением массива
-    updateImages(myDiskImage)
+    await updateImages(myDiskImage)
   }
 
   if (salonImage && salonImage.swiper) {
-    arrayImagesForPDF[2] = salonImage
-      .querySelector('.swiper-slide-active img')
-      .getAttribute('data-src')
+    arrayImagesForPDF[2] =
+      salonImage
+        .querySelector('.swiper-slide-active img')
+        .getAttribute('data-src') ||
+      salonImage.querySelector('.swiper-slide-active img').getAttribute('src')
   } else {
-    arrayImagesForPDF[2] = salonImage
-      .querySelector('.swiper-slide img')
-      .getAttribute('data-src')
+    arrayImagesForPDF[2] =
+      salonImage.querySelector('.swiper-slide img').getAttribute('data-src') ||
+      salonImage.querySelector('.swiper-slide img').getAttribute('src')
   }
+
   updateCheck()
 }
 
@@ -928,60 +990,6 @@ const updateWebsite = () => {
   myPDF()
 }
 
-// Функция для преобразования изображения в Data URL
-
-async function loadImageAsDataURL(imagePath) {
-  // Проверяем, является ли переданный путь уже Data URL
-  if (!imagePath || imagePath.startsWith('data:image')) {
-    return imagePath // Если это пустое значение или Data URL, возвращаем его без изменений
-  }
-  try {
-    console.log('test:', imagePath)
-    const response = await fetch(imagePath)
-    if (!response.ok) {
-      throw new Error('Failed to fetch image')
-    }
-
-    let blob = await response.blob() // Изменили const на let
-    console.log('loadImageAsDataURL: imagePath:', imagePath)
-    console.log('loadImageAsDataURL: blob type:', blob.type)
-    const reader = new FileReader()
-
-    // Проверяем, является ли тип изображения WebP или PNG
-    const isWebP = blob.type === 'image/webp'
-
-    if (isWebP) {
-      // Если изображение в формате WebP или PNG, конвертируем его в другой формат
-      const image = new Image()
-      image.src = URL.createObjectURL(blob)
-      await image.decode() // Дожидаемся загрузки изображения
-      const canvas = document.createElement('canvas')
-      canvas.width = image.width
-      canvas.height = image.height
-      const context = canvas.getContext('2d')
-      context.drawImage(image, 0, 0)
-      const convertedBlob = await new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject(new Error('Failed to convert image'))
-          }
-          resolve(blob)
-        }) // Если изображение в формате PNG, конвертируем его в JPEG
-      })
-
-      blob = convertedBlob // Изменили присвоение значения константе
-    }
-
-    return new Promise((resolve, reject) => {
-      reader.onload = () => resolve(reader.result)
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
-    })
-  } catch (error) {
-    throw new Error('Error loading image as Data URL: ' + error.message)
-  }
-}
-
 // Функция для вычисления суммы с процентом без десятых
 function calculateWithPercentage(sum, percentage) {
   return roundNumberToNChars(Math.ceil(sum * (1 + percentage / 100)), 4)
@@ -1127,18 +1135,6 @@ const myPDF = async () => {
       margin: [40, 0, 0, 0],
     },
   ])
-
-  async function loadImageAsDataURLWithLogging(imagePath) {
-    try {
-      console.log('Before loading image:', imagePath)
-      const imageDataURL = await loadImageAsDataURL(imagePath)
-      console.log('After loading image:', imagePath)
-      return imageDataURL
-    } catch (error) {
-      console.error('Error loading image:', error)
-      throw error
-    }
-  }
 
   var pdfContent = {
     defaultFileName: `${carState.model[0]} ${carState.model[1]}.pdf`,
