@@ -313,12 +313,14 @@ const updateTitlePrice = async () => {
     arrayImagesForPDF[2] =
       salonImage
         .querySelector('.swiper-slide-active img')
-        .getAttribute('data-src') ||
-      salonImage.querySelector('.swiper-slide-active img').getAttribute('src')
+        .getAttribute('src') ||
+      salonImage
+        .querySelector('.swiper-slide-active img')
+        .getAttribute('data-src')
   } else {
     arrayImagesForPDF[2] =
-      salonImage.querySelector('.swiper-slide img').getAttribute('data-src') ||
-      salonImage.querySelector('.swiper-slide img').getAttribute('src')
+      salonImage.querySelector('.swiper-slide img').getAttribute('src') ||
+      salonImage.querySelector('.swiper-slide img').getAttribute('data-src')
   }
 
   updateCheck()
@@ -1454,13 +1456,13 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         carState.options.color[0] = currentPrice
         carState.options.color[1] = currentColor
 
-        await updateTitlePrice()
-
         if (carState.options.wheels[3] === true) {
           await updateCaruselDisk(`${currentColor}-${indexDisk}`)
         }
 
         isUpdatingCarousel = false
+
+        await updateTitlePrice()
       } catch (error) {
         console.error('Error in diskDiametr activeIndexChange event:', error)
         isUpdatingCarousel = false
