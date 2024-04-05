@@ -604,7 +604,11 @@ const innerPriceTitleModels = () => {
   })
 }
 
-// Обновление кнопок
+
+async function checkOptionsModel(modelName, isSelected) {
+  return  console.log('Модель:', modelName, isSelected);
+}
+// Обновление кнопок выбора моделей
 function createAndAttachButtonClickHandler(modelName) {
   const buttons = document.querySelectorAll(
     `.car-${modelName.toLowerCase()}-mobile`
@@ -620,7 +624,7 @@ function createAndAttachButtonClickHandler(modelName) {
   })
 }
 
-// Функция обновления состояния кнопок
+// Функция обновления состояния кнопок выбора моделей
 function updateButtonState(carState) {
   modelNames.forEach((modelName) => {
     const isSelected = carState.model[1] === `${modelName}`
@@ -640,6 +644,7 @@ function updateButtonState(carState) {
         button.style.backgroundColor = '#fff'
         elementorButton ? (elementorButton.style.backgroundColor = '#fff') : ''
         buttonTextElement.style.color = '#000'
+        checkOptionsModel(modelName, isSelected)
       } else {
         // Если не выбрано, восстановите стандартные стили
         button.style.backgroundColor = '#DB2424'
