@@ -3,6 +3,10 @@
   --highlight-color: #db2424;
 }
 
+.carget-acordion-color {
+  width: 100% !important;
+}
+
 .elementor-accordion-item .elementor-widget-wrap {
   gap: 16px;
 }
@@ -104,6 +108,18 @@
   }
   .check-list-wrapper .check-list-image {
     margin-bottom: 16px;
+  }
+  #carget-acordion-color-image .swiper-slide-image {
+    width: 100%;
+    height: auto;
+  }
+  #carget-acordion-disk-image .swiper-slide-image {
+    width: 100%;
+    height: auto;
+  }
+  #carget-acordion-salon-color .swiper-slide-image {
+    width: 100%;
+    height: auto;
   }
 }
 
