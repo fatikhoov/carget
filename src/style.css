@@ -110,16 +110,16 @@
     margin-bottom: 16px;
   }
   #carget-acordion-color-image .swiper-slide-image {
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: auto !important;
   }
   #carget-acordion-disk-image .swiper-slide-image {
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: auto !important;
   }
   #carget-acordion-salon-color .swiper-slide-image {
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: auto !important;
   }
 }
 
