@@ -112,14 +112,17 @@
   #carget-acordion-color-image .swiper-slide-image {
     width: 100% !important;
     height: auto !important;
+    max-height: 200px !important;
   }
   #carget-acordion-disk-image .swiper-slide-image {
     width: 100% !important;
     height: auto !important;
+    max-height: 200px !important;
   }
   #carget-acordion-salon-color .swiper-slide-image {
     width: 100% !important;
     height: auto !important;
+    max-height: 200px !important;
   }
 }
 
