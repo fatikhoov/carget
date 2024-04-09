@@ -10,7 +10,12 @@
 .elementor-accordion-item .elementor-widget-wrap {
   gap: 16px;
 }
-
+.carget-acordion-color,
+.carget-acordion-disk,
+.carget-acordion-salon {
+  width: 100% !important;
+  height: auto !important;
+}
 #carget-models .elementor-row {
   display: flex;
   flex-wrap: wrap;
@@ -195,7 +200,11 @@ header .elementor-container {
 .elementor-container {
   max-width: 1200px;
 }
-
+.elementor-container.elementor-column-gap-default {
+  justify-content: center !important;
+  row-gap: 8px !important;
+  flex-wrap: wrap !important;
+}
 .header-wrapper {
   position: -webkit-sticky;
   position: sticky;
