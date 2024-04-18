@@ -162,6 +162,10 @@
 }
 
 @media screen and (min-width: 640px) {
+  .carget-models .elementor-column {
+    width: auto !important;
+  }
+
   .check-list-image .swiper-slide-active {
     width: 100% !important;
     transform: none !important;
@@ -203,7 +207,7 @@ header .elementor-container {
 .elementor-container.elementor-column-gap-default {
   justify-content: center !important;
   row-gap: 8px !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap;
 }
 .header-wrapper {
   position: -webkit-sticky;

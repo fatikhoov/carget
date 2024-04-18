@@ -1,19 +1,144 @@
-<style>
-  .carget-acordion-color,
-  .carget-acordion-disk,
-  .carget-acordion-salon-color {
-    width: 100% !important;
-  }
-</style>
 <script>
-  let savedSlides = {}
-  let originalColorOptions = {}
-  let originalWheelsOptions = {}
-  let originalInteriorColorOptions = {}
-  let previousModel = null
+  let Google_DB = {}
 
-  let myTest
-  const carState = {
+  let carData = {}
+
+  let modelsArray = []
+
+  function innerGoogleBD() {
+    // Проходимся по элементам Google_DB
+    for (let i = 0; i < Google_DB.length; i++) {
+      // Пропускаем первый элемент и проверяем наличие данных в текущем строковом массиве
+      if (i === 0 || Google_DB[i].some((entry) => entry !== '')) {
+        // Фильтруем пустые элементы и пропускаем первый элемент
+        let filteredData = Google_DB[i].slice(1).filter((entry) => entry !== '')
+
+        // Если есть данные в текущем строковом массиве
+        if (filteredData.length > 0) {
+          // Создаем объект для хранения данных текущей категории
+          let categoryData = {}
+
+          // Если текущая категория - модели
+          if (Google_DB[i][0] === 'models') {
+            // Проходимся по элементам данных и преобразуем строки в объекты
+            for (let j = 0; j < filteredData.length; j++) {
+              // Проверяем, является ли текущий элемент строкой
+              if (typeof filteredData[j] === 'string') {
+                // Удаляем лишние символы "{" и "}", а также лишние пробелы и разбиваем строку на ключ и значение
+                let parts = filteredData[j]
+                  .replace('{', '')
+                  .replace('}', '')
+                  .trim()
+                  .split(':')
+                // Если удалось разделить строку
+                if (parts.length === 2) {
+                  // Извлекаем ключ и значение и добавляем данные в объект
+                  let key = parts[0].trim()
+                  let value = JSON.parse(parts[1].trim())
+                  categoryData[key] = value
+                }
+              }
+            }
+          } else {
+            // Проходимся по элементам данных и парсим их в объекты
+            for (let j = 0; j < filteredData.length; j++) {
+              // Проверяем, является ли текущий элемент строкой
+              if (typeof filteredData[j] === 'string') {
+                // Разбиваем строку на ключ и значение по разделителю ":"
+                let parts = filteredData[j].split(':')
+                // Если удалось разделить строку
+                if (parts.length === 2) {
+                  // Удаляем лишние пробелы в ключе и значении и добавляем данные в объект
+                  let key = parts[0].trim()
+                  let value = parts[1].trim()
+                  categoryData[key] = value
+                }
+              }
+            }
+          }
+
+          // Добавляем данные текущей категории в объект carData
+          carData[Google_DB[i][0]] = categoryData
+        }
+      }
+    }
+
+    // Выводим объект с данными в консоль
+    console.log(carData)
+  }
+
+  function convertModelsData(modelsData) {
+    // Проходимся по элементам массива данных о моделях, начиная с второго элемента
+    for (let i = 1; i < modelsData.length; i++) {
+      // Если текущий элемент не пустой
+      if (modelsData[i]) {
+        // Разделяем элемент на имя модели и данные о ней по символу '#'
+        let [modelName, modelDataStr] = modelsData[i]
+          .split('#')
+          .map((str) => str.trim())
+
+        // Инициализируем объект данных о модели
+        let modelData = {}
+
+        // Разделяем данные о модели на строки
+        let modelDataLines = modelDataStr.split('\n')
+
+        // Проходимся по каждой строке данных о модели
+        modelDataLines.forEach((line) => {
+          // Если строка не пустая
+          if (line.trim() !== '') {
+            // Разделяем строку на ключ и значение по символу ':'
+            let [key, value] = line.split(':').map((str) => str.trim())
+            // Если есть ключ и значение
+            if (key && value) {
+              // Приводим значение к числу, если это возможно
+              value = !isNaN(value) ? parseFloat(value) : value
+              // Добавляем пару ключ-значение к данным о модели
+              modelData[key] = value
+            }
+          }
+        })
+
+        // Создаем объект модели для добавления в массив моделей
+        let modelObject = { [modelName]: modelData }
+
+        // Добавляем объект модели в массив моделей
+        modelsArray.push(modelObject)
+      }
+    }
+
+    return modelsArray
+  }
+
+  function gExel() {
+    const sheetName = document.title
+    const URL_GOOGLE_SHEET =
+      'https://script.google.com/macros/s/AKfycbzt3Vbt7jOPOLf5DdyMuBYaJj30_3rHubG_hkRog6EX574wBRkZIuLWB1wKefZtemR5/exec?sheetName='
+    const app = URL_GOOGLE_SHEET + sheetName
+
+    let xhr = new XMLHttpRequest()
+
+    xhr.open('GET', app)
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return
+
+      if (xhr.status == 200) {
+        try {
+          var r = JSON.parse(xhr.responseText)
+          Google_DB = r['result']
+          console.log('result', Google_DB)
+        } catch (e) {
+          console.error('Error parsing JSON:', e)
+        }
+      }
+    }
+    xhr.send()
+  }
+  gExel()
+</script>
+
+<script>
+  let carState = {
     model: ['Zeekr 001 NEW', 'We'], // выбранная модель
     models: [
       // все модели, стоимости в юанях
@@ -21,12 +146,7 @@
       { We_4wd: { price: 269000, sale: 0 } },
       { Me: { price: 299000, sale: 0 } },
       { You: { price: 329000, sale: 0 } },
-      {
-        Performance: {
-          price: 279398,
-          sale: 0,
-        },
-      },
+      { Zsport: { price: 279398, sale: 0 } },
     ],
     // ОПЦИИ
     options: {
@@ -46,14 +166,14 @@
             sale: 78000,
             color: 'ОРАНЖЕВЫЙ',
             show: false,
-            models: ['We', 'We_4wd', 'Me', 'You'],
+            models: ['We', 'We_4wd', 'Me', 'You', 'Zsport'],
           },
           {
             price: 0,
             sale: 78000,
             color: 'СИНИЙ',
             show: false,
-            models: ['We', 'We_4wd', 'Me', 'You'],
+            models: ['We', 'We_4wd', 'Me', 'You', 'Zsport'],
           },
           {
             price: 0,
@@ -76,13 +196,6 @@
             show: false,
             models: ['We', 'We_4wd', 'Me', 'You'],
           },
-          {
-            price: 0,
-            sale: 0,
-            color: 'ЖЕЛТЫЙ',
-            show: false,
-            models: ['Performance'],
-          },
         ],
       ],
       // ВЫБОР КОЛЕСА
@@ -96,7 +209,7 @@
             price: 0,
             sale: 208000,
             show: false,
-            models: ['We', 'We_4wd', 'Me', 'You'],
+            models: ['We', 'We_4wd', 'Me', 'You', 'Zsport'],
           },
           {
             color: '21” ARC PHANTOM',
@@ -112,14 +225,6 @@
             price: 260000,
             sale: 0,
             models: ['We', 'We_4wd', 'Me', 'You'],
-          },
-          {
-            color: '20” PERFORMANCE FORGED С СУППОРТАМИ AKEBONO',
-            diametr: 21,
-            show: false,
-            price: 0,
-            sale: 0,
-            models: ['Performance'],
           },
         ],
         true,
@@ -160,16 +265,9 @@
           {
             price: 0,
             sale: 0,
-            color: 'СЕРЫЙ-БЕЖЕВЫЙ',
-            show: false,
-            models: ['We', 'We_4wd', 'Me', 'You'],
-          },
-          {
-            price: 0,
-            sale: 0,
             color: 'СЕРЫЙ-ОРАНЖЕВЫЙ',
             show: false,
-            models: ['Performance'],
+            models: ['Zsport'],
           },
         ],
       ],
@@ -180,7 +278,8 @@
           {
             price: 364000,
             sale: 0,
-            show: false, //ВЫБОР ПО УМОЛЧАНИЮ
+            show: false,
+            check: true,
             title: 'ПНЕВМАТИЧЕСКАЯ ПОДВЕСКА',
             description:
               'Высота кузова меняется в диапазоне 117-200 мм, гибко адаптируясь к различным дорожным условиям',
@@ -190,7 +289,8 @@
           {
             price: 208000,
             sale: 0,
-            show: false, //ВЫБОР ПО УМОЛЧАНИЮ
+            show: false,
+            check: true,
             title: 'ПАНОРАМНАЯ КРЫША ИЗ ЭЛЕКТРОХРОМНОГО СТЕКЛА ',
             description:
               'Цвет и рисунок стекла может варьироваться. Защита от ультрафиолета 99%',
@@ -200,7 +300,8 @@
           {
             price: 208000,
             sale: 0,
-            show: false, //ВЫБОР ПО УМОЛЧАНИЮ
+            show: false,
+            check: true,
             title: '4 СЕНСОРНЫЕ АВТОМАТИЧЕСКИЕ ДВЕРИ',
             description:
               'С ДАТЧИКАМИ ПРЕПЯТСТВИЙ И ЗАДНЯЯ ИНДУКЦИОННАЯ ДВЕРЬ С ПАМЯТЬЮ',
@@ -210,7 +311,8 @@
           {
             price: 65000,
             sale: 0,
-            show: false, //ВЫБОР ПО УМОЛЧАНИЮ
+            show: false,
+            check: true,
             title: '15.6 ДЮЙМОВЫЙ ПЛАВАЮЩИЙ ДИСПЛЕЙ',
             description: 'С интеллектуальным поворотным механизмом',
             models: ['We', 'We_4wd', 'Me'],
@@ -219,7 +321,8 @@
           {
             price: 91000,
             sale: 0,
-            show: false, //ВЫБОР ПО УМОЛЧАНИЮ
+            show: false,
+            check: true,
             title: 'ФАРКОП',
             description: 'Максимальная масса буксируемого прицепа 2 тонны',
             models: ['All'],
@@ -229,25 +332,17 @@
             price: 26000,
             sale: 0,
             show: false,
+            check: true,
             title: 'КРЫША ЧЕРНОГО ЦВЕТА ',
             description: '',
             models: ['All'],
           },
 
           {
-            price: 455000,
-            sale: 0,
-            show: false,
-            title: 'ПАКЕТ Z-SPORT',
-            description:
-              'Оранжевый кузов, спортивные кованые диски R22, серо-оранжевый салон из алькантары, адаптивные гоночные сиденья',
-            models: ['You'],
-          },
-
-          {
             price: 166400,
             sale: 0,
-            show: false,
+            show: true,
+            check: false,
             title: 'ДОМАШНЯЯ ЗАРЯДКА 20 КВТ',
             description: 'ПРОВОД 30 МЕТРОВ',
             models: ['All'],
@@ -256,7 +351,8 @@
           {
             price: 78000,
             sale: 0,
-            show: false,
+            show: true,
+            check: false,
             title: 'ДОМАШНЯЯ ЗАРЯДКА 7 КВТ',
             description: 'ПРОВОД 30 МЕТРОВ',
             models: ['All'],
@@ -276,6 +372,7 @@
     carLocalization: 0, // Стоимость руссификации авто в рублях
     marga: [10, 2, 22], // Маржа в процентах (5%, 1.5%, 28%)
   }
+
   const data4 = [
     'Работаем за свои средства',
     'Белая и прозрачная структура договоров',
@@ -303,244 +400,6 @@
       contact: 'carget@bk.ru',
     },
   ]
-</script>
-
-<script>
-  async function updateOptions(selectedModel) {
-    if (selectedModel !== previousModel) {
-      // Модель изменилась, выполняем обновление опций
-      previousModel = selectedModel
-
-      carState.options.color[2] = originalColorOptions
-      carState.options.wheels[2] = [...originalWheelsOptions]
-      carState.options.interiorColor[2] = [...originalInteriorColorOptions]
-
-      carState.options.color[2] = carState.options.color[2].filter((option) =>
-        option.models.includes(selectedModel)
-      )
-      carState.options.wheels[2] = carState.options.wheels[2].filter((option) =>
-        option.models.includes(selectedModel)
-      )
-      carState.options.interiorColor[2] = originalInteriorColorOptions.filter(
-        (option) => option.models.includes(selectedModel)
-      )
-
-      colorCarousel.swiper.removeAllSlides()
-      colorImageCarousel.swiper.removeAllSlides()
-      diskDiametr.swiper.removeAllSlides()
-      colorSalon.swiper.removeAllSlides()
-      salonImage.swiper.removeAllSlides()
-
-      // Создаем пустые массивы для отслеживания уже добавленных слайдов для всех каруселей
-      let addedColorSlides = []
-      let addedColorImageSlides = []
-      let addedDiskDiametrSlides = []
-      let addedColorSalonSlides = []
-      let addedSalonImageSlides = []
-
-      // Проходим по каждой опции цвета кузова
-      carState.options.color[2].forEach((option) => {
-        if (option.models.includes(selectedModel)) {
-          const isSlideAlreadyAdded = addedColorSlides.some((slide) =>
-            slide.innerHTML.includes(`alt="${option.color}"`)
-          )
-
-          if (!isSlideAlreadyAdded) {
-            const filteredColorSlides = savedSlides.colorCarousel.filter(
-              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
-            )
-
-            filteredColorSlides.forEach((slide) => {
-              colorCarousel.swiper.appendSlide(slide)
-              addedColorSlides.push(slide)
-            })
-          }
-        }
-      })
-
-      // Проходим по каждой опции цвета кузова
-      carState.options.color[2].forEach((option) => {
-        if (option.models.includes(selectedModel)) {
-          // Фильтруем сохраненные слайды по цвету для colorImageCarousel
-          const filteredColorImageSlides =
-            savedSlides.colorImageCarousel.filter((slide) =>
-              slide.innerHTML.includes(`alt="${option.color}"`)
-            )
-
-          // Создаем объект для хранения уникальных значений alt
-          const uniqueAlts = {}
-
-          // Проходимся по каждому отфильтрованному слайду
-          filteredColorImageSlides.forEach((slide) => {
-            // Получаем значение атрибута alt изображения
-            const alt = slide
-              .querySelector('.swiper-slide-image')
-              .getAttribute('alt')
-
-            // Если такого alt еще нет в объекте uniqueAlts, добавляем его в объект
-            if (!(alt in uniqueAlts)) {
-              uniqueAlts[alt] = true // Используем значение true для указания на уникальность
-            } else {
-              // Если такой alt уже есть, удаляем текущий слайд из DOM
-              slide.remove()
-            }
-          })
-
-          // Перебираем отфильтрованные и отфильтрованные от дубликатов слайды и добавляем их в карусель
-          filteredColorImageSlides.forEach((slide) => {
-            // Проверяем, добавлен ли уже этот слайд
-            if (!addedColorImageSlides.includes(slide)) {
-              colorImageCarousel.swiper.appendSlide(slide)
-              addedColorImageSlides.push(slide)
-            }
-          })
-        }
-      })
-
-      // Проходим по каждой опции диаметра диска
-      carState.options.wheels[2].forEach((option) => {
-        if (option.models.includes(selectedModel)) {
-          const isSlideAlreadyAdded = addedDiskDiametrSlides.some((slide) =>
-            slide.innerHTML.includes(`alt="${option.color}"`)
-          )
-          if (!isSlideAlreadyAdded) {
-            const filteredDiskDiametrSlides = savedSlides.diskDiametr.filter(
-              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
-            )
-            filteredDiskDiametrSlides.forEach((slide) => {
-              diskDiametr.swiper.appendSlide(slide)
-              addedDiskDiametrSlides.push(slide)
-            })
-          }
-        }
-      })
-
-      // Проходим по каждой опции цвета салона
-      carState.options.interiorColor[2].forEach((option) => {
-        if (option.models.includes(selectedModel)) {
-          const isSlideAlreadyAdded = addedColorSalonSlides.some((slide) =>
-            slide.innerHTML.includes(`alt="${option.color}"`)
-          )
-
-          if (!isSlideAlreadyAdded) {
-            const filteredColorSalonSlides = savedSlides.colorSalon.filter(
-              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
-            )
-
-            filteredColorSalonSlides.forEach((slide) => {
-              colorSalon.swiper.appendSlide(slide)
-              addedColorSalonSlides.push(slide)
-            })
-          }
-        }
-      })
-
-      // Проходим по каждой опции салона
-      carState.options.interiorColor[2].forEach((option) => {
-        if (option.models.includes(selectedModel)) {
-          const isSlideAlreadyAdded = addedSalonImageSlides.some((slide) =>
-            slide.innerHTML.includes(`alt="${option.color}"`)
-          )
-
-          if (!isSlideAlreadyAdded) {
-            const filteredSalonImageSlides = savedSlides.salonImage.filter(
-              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
-            )
-
-            filteredSalonImageSlides.forEach((slide) => {
-              salonImage.swiper.appendSlide(slide)
-              addedSalonImageSlides.push(slide)
-            })
-          }
-        }
-      })
-
-      if (colorCarousel.swiper.slides.length > 1) {
-        setTimeout(() => {
-          // Обновляем все карусели
-          colorCarousel.swiper.params.centeredSlides = true
-          colorCarousel.swiper.params.slideToClickedSlide = true
-
-          colorCarousel.swiper.update()
-          colorImageCarousel.swiper.update()
-          diskDiametr.swiper.update()
-          diskImage.swiper.update()
-
-          colorCarousel.swiper.slideTo(
-            colorCarousel.swiper.params.slidesPerView
-          )
-        }, 1000)
-      }
-
-      areAllSlidesWithSameAlt(colorCarousel)
-        ? removeDuplicateSlides(colorCarousel)
-        : ''
-      areAllSlidesWithSameAlt(colorImageCarousel)
-        ? removeDuplicateSlides(colorImageCarousel)
-        : ''
-      areAllSlidesWithSameAlt(diskDiametr)
-        ? removeDuplicateSlides(diskDiametr)
-        : ''
-      areAllSlidesWithSameAlt(colorSalon)
-        ? removeDuplicateSlides(colorSalon)
-        : ''
-      areAllSlidesWithSameAlt(salonImage)
-        ? removeDuplicateSlides(salonImage)
-        : ''
-
-      updateTitlePrice()
-    }
-  }
-
-  function removeDuplicateSlides(carouselElement) {
-    // Создаем объект для хранения уникальных значений alt
-    const uniqueAlts = {}
-
-    // Получаем все слайды карусели
-    const slides = carouselElement.querySelectorAll('.swiper-slide')
-
-    // Проходимся по каждому слайду
-    slides.forEach((slide) => {
-      // Получаем значение атрибута alt изображения
-      const alt = slide.querySelector('.swiper-slide-image').getAttribute('alt')
-
-      // Если такого alt еще нет в объекте uniqueAlts, добавляем его в объект
-      if (!(alt in uniqueAlts)) {
-        uniqueAlts[alt] = true // Используем значение true для указания на уникальность
-      } else {
-        // Если такой alt уже есть, удаляем текущий слайд из DOM
-        slide.remove()
-      }
-    })
-  }
-
-  function areAllSlidesWithSameAlt(carousel) {
-    const slides = carousel.querySelectorAll('.swiper-slide')
-
-    if (slides.length === 0) {
-      // Если карусель пустая, считаем, что все слайды с одинаковым alt
-      return true
-    }
-
-    // Получаем значение атрибута alt первого слайда
-    const firstSlideAlt = slides[0]
-      .querySelector('.swiper-slide-image')
-      .getAttribute('alt')
-
-    // Проверяем, совпадает ли значение атрибута alt у всех слайдов
-    for (let i = 1; i < slides.length; i++) {
-      const slideAlt = slides[i]
-        .querySelector('.swiper-slide-image')
-        .getAttribute('alt')
-      if (slideAlt !== firstSlideAlt) {
-        // Если хотя бы одно значение отличается, возвращаем false
-        return false
-      }
-    }
-
-    // Если все значения атрибута alt одинаковы, возвращаем true
-    return true
-  }
 </script>
 
 <script

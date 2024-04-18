@@ -1,9 +1,9 @@
-// ..... импорты ..... //
 let savedSlides = {}
 let originalColorOptions = {}
 let originalWheelsOptions = {}
 let originalInteriorColorOptions = {}
 let previousModel = null
+// ..... импорты ..... //
 
 let saleAll = 0
 let pdfDoc
@@ -85,226 +85,200 @@ const cargetLoader = document.getElementById('carget-loader')
 
 async function updateOptions(selectedModel) {
   if (selectedModel !== previousModel) {
-    // Модель изменилась, выполняем обновление опций
     previousModel = selectedModel
 
-    carState.options.color[2] = originalColorOptions
-    carState.options.wheels[2] = [...originalWheelsOptions]
-    carState.options.interiorColor[2] = [...originalInteriorColorOptions]
-
-    carState.options.color[2] = carState.options.color[2].filter((option) =>
-      option.models.includes(selectedModel)
-    )
-    carState.options.wheels[2] = carState.options.wheels[2].filter((option) =>
-      option.models.includes(selectedModel)
-    )
-    carState.options.interiorColor[2] = originalInteriorColorOptions.filter(
-      (option) => option.models.includes(selectedModel)
-    )
-
-    colorCarousel.swiper.removeAllSlides()
-    colorImageCarousel.swiper.removeAllSlides()
-    diskDiametr.swiper.removeAllSlides()
-    colorSalon.swiper.removeAllSlides()
-    salonImage.swiper.removeAllSlides()
-
-    // Создаем пустые массивы для отслеживания уже добавленных слайдов для всех каруселей
-    let addedColorSlides = []
-    let addedColorImageSlides = []
-    let addedDiskDiametrSlides = []
-    let addedColorSalonSlides = []
-    let addedSalonImageSlides = []
-
-    // Проходим по каждой опции цвета кузова
-    carState.options.color[2].forEach((option) => {
-      if (option.models.includes(selectedModel)) {
-        const isSlideAlreadyAdded = addedColorSlides.some((slide) =>
-          slide.innerHTML.includes(`alt="${option.color}"`)
-        )
-
-        if (!isSlideAlreadyAdded) {
-          const filteredColorSlides = savedSlides.colorCarousel.filter(
-            (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+    if (carState.options.color[2][0].models) {
+      carState.options.color[2] = [...originalColorOptions]
+      carState.options.color[2] = carState.options.color[2].filter((option) =>
+        option.models.includes(selectedModel)
+      )
+      colorCarousel.swiper.removeAllSlides()
+      colorImageCarousel.swiper.removeAllSlides()
+      let addedColorSlides = []
+      let addedColorImageSlides = []
+      carState.options.color[2].forEach((option) => {
+        if (option.models.includes(selectedModel)) {
+          const isSlideAlreadyAdded = addedColorSlides.some((slide) =>
+            slide.innerHTML.includes(`alt="${option.color}"`)
           )
 
-          filteredColorSlides.forEach((slide) => {
-            colorCarousel.swiper.appendSlide(slide)
-            addedColorSlides.push(slide)
-          })
-        }
-      }
-    })
+          if (!isSlideAlreadyAdded) {
+            const filteredColorSlides = savedSlides.colorCarousel.filter(
+              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+            )
 
-    // Проходим по каждой опции цвета кузова
-    carState.options.color[2].forEach((option) => {
-      if (option.models.includes(selectedModel)) {
-        // Фильтруем сохраненные слайды по цвету для colorImageCarousel
-        const filteredColorImageSlides = savedSlides.colorImageCarousel.filter(
-          (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
-        )
-
-        // Создаем объект для хранения уникальных значений alt
-        const uniqueAlts = {}
-
-        // Проходимся по каждому отфильтрованному слайду
-        filteredColorImageSlides.forEach((slide) => {
-          // Получаем значение атрибута alt изображения
-          const alt = slide
-            .querySelector('.swiper-slide-image')
-            .getAttribute('alt')
-
-          // Если такого alt еще нет в объекте uniqueAlts, добавляем его в объект
-          if (!(alt in uniqueAlts)) {
-            uniqueAlts[alt] = true // Используем значение true для указания на уникальность
-          } else {
-            // Если такой alt уже есть, удаляем текущий слайд из DOM
-            slide.remove()
+            filteredColorSlides.forEach((slide) => {
+              colorCarousel.swiper.appendSlide(slide)
+              addedColorSlides.push(slide)
+            })
           }
-        })
+        }
+      })
+      carState.options.color[2].forEach((option) => {
+        if (option.models.includes(selectedModel)) {
+          // Фильтруем сохраненные слайды по цвету для colorImageCarousel
+          const filteredColorImageSlides =
+            savedSlides.colorImageCarousel.filter((slide) =>
+              slide.innerHTML.includes(`alt="${option.color}"`)
+            )
 
-        // Перебираем отфильтрованные и отфильтрованные от дубликатов слайды и добавляем их в карусель
-        filteredColorImageSlides.forEach((slide) => {
-          // Проверяем, добавлен ли уже этот слайд
-          if (!addedColorImageSlides.includes(slide)) {
-            colorImageCarousel.swiper.appendSlide(slide)
-            addedColorImageSlides.push(slide)
+          // Создаем объект для хранения уникальных значений alt
+          const uniqueAlts = {}
+
+          // Проходимся по каждому отфильтрованному слайду
+          filteredColorImageSlides.forEach((slide) => {
+            // Получаем значение атрибута alt изображения
+            const alt = slide
+              .querySelector('.swiper-slide-image')
+              .getAttribute('alt')
+
+            // Если такого alt еще нет в объекте uniqueAlts, добавляем его в объект
+            if (!(alt in uniqueAlts)) {
+              uniqueAlts[alt] = true // Используем значение true для указания на уникальность
+            } else {
+              // Если такой alt уже есть, удаляем текущий слайд из DOM
+              slide.remove()
+            }
+          })
+
+          // Перебираем отфильтрованные и отфильтрованные от дубликатов слайды и добавляем их в карусель
+          filteredColorImageSlides.forEach((slide) => {
+            // Проверяем, добавлен ли уже этот слайд
+            if (!addedColorImageSlides.includes(slide)) {
+              colorImageCarousel.swiper.appendSlide(slide)
+              addedColorImageSlides.push(slide)
+            }
+          })
+        }
+      })
+      areAllSlidesWithSameAlt(colorCarousel)
+        ? removeDuplicateSlides(colorCarousel)
+        : ''
+      if (colorCarousel.swiper.slides.length > 1) {
+        setTimeout(() => {
+          // Обновляем все карусели
+          colorCarousel.swiper.params.centeredSlides = true
+          colorCarousel.swiper.params.slideToClickedSlide = true
+
+          colorCarousel.swiper.slideTo(
+            colorCarousel.swiper.params.slidesPerView
+          )
+        }, 1000)
+      }
+    }
+
+    if (carState.options.wheels[2][0].models) {
+      carState.options.wheels[2] = [...originalWheelsOptions]
+      carState.options.wheels[2] = carState.options.wheels[2].filter((option) =>
+        option.models.includes(selectedModel)
+      )
+      diskDiametr.swiper.removeAllSlides()
+      let addedDiskDiametrSlides = []
+      carState.options.wheels[2].forEach((option) => {
+        if (option.models.includes(selectedModel)) {
+          const isSlideAlreadyAdded = addedDiskDiametrSlides.some((slide) =>
+            slide.innerHTML.includes(`alt="${option.color}"`)
+          )
+          if (!isSlideAlreadyAdded) {
+            const filteredDiskDiametrSlides = savedSlides.diskDiametr.filter(
+              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+            )
+            filteredDiskDiametrSlides.forEach((slide) => {
+              diskDiametr.swiper.appendSlide(slide)
+              addedDiskDiametrSlides.push(slide)
+            })
+
+            updateCaruselDisk(option.color)
           }
-        })
-      }
-    })
-
-    // Проходим по каждой опции диаметра диска
-    carState.options.wheels[2].forEach((option) => {
-      if (option.models.includes(selectedModel)) {
-        const isSlideAlreadyAdded = addedDiskDiametrSlides.some((slide) =>
-          slide.innerHTML.includes(`alt="${option.color}"`)
-        )
-        if (!isSlideAlreadyAdded) {
-          const filteredDiskDiametrSlides = savedSlides.diskDiametr.filter(
-            (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
-          )
-          filteredDiskDiametrSlides.forEach((slide) => {
-            diskDiametr.swiper.appendSlide(slide)
-            addedDiskDiametrSlides.push(slide)
-          })
         }
+      })
+      areAllSlidesWithSameAlt(diskDiametr)
+        ? removeDuplicateSlides(diskDiametr)
+        : ''
+      if (diskDiametr.swiper.slides.length > 1) {
+        diskDiametr.swiper.slideNext()
       }
-    })
+    }
 
-    // Проходим по каждой опции цвета салона
-    carState.options.interiorColor[2].forEach((option) => {
-      if (option.models.includes(selectedModel)) {
-        const isSlideAlreadyAdded = addedColorSalonSlides.some((slide) =>
-          slide.innerHTML.includes(`alt="${option.color}"`)
+    if (carState.options.interiorColor[2][0].models) {
+      carState.options.interiorColor[2] = [...originalInteriorColorOptions]
+      carState.options.interiorColor[2] =
+        carState.options.interiorColor[2].filter((option) =>
+          option.models.includes(selectedModel)
         )
-
-        if (!isSlideAlreadyAdded) {
-          const filteredColorSalonSlides = savedSlides.colorSalon.filter(
-            (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+      colorSalon.swiper.removeAllSlides()
+      salonImage.swiper.removeAllSlides()
+      let addedColorSalonSlides = []
+      let addedSalonImageSlides = []
+      carState.options.interiorColor[2].forEach((option) => {
+        if (option.models.includes(selectedModel)) {
+          const isSlideAlreadyAdded = addedColorSalonSlides.some((slide) =>
+            slide.innerHTML.includes(`alt="${option.color}"`)
           )
-
-          filteredColorSalonSlides.forEach((slide) => {
-            colorSalon.swiper.appendSlide(slide)
-            addedColorSalonSlides.push(slide)
-          })
+          if (!isSlideAlreadyAdded) {
+            const filteredColorSalonSlides = savedSlides.colorSalon.filter(
+              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+            )
+            filteredColorSalonSlides.forEach((slide) => {
+              colorSalon.swiper.appendSlide(slide)
+              addedColorSalonSlides.push(slide)
+            })
+          }
         }
-      }
-    })
-
-    // Проходим по каждой опции салона
-    carState.options.interiorColor[2].forEach((option) => {
-      if (option.models.includes(selectedModel)) {
-        const isSlideAlreadyAdded = addedSalonImageSlides.some((slide) =>
-          slide.innerHTML.includes(`alt="${option.color}"`)
-        )
-
-        if (!isSlideAlreadyAdded) {
-          const filteredSalonImageSlides = savedSlides.salonImage.filter(
-            (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+      })
+      carState.options.interiorColor[2].forEach((option) => {
+        if (option.models.includes(selectedModel)) {
+          const isSlideAlreadyAdded = addedSalonImageSlides.some((slide) =>
+            slide.innerHTML.includes(`alt="${option.color}"`)
           )
 
-          filteredSalonImageSlides.forEach((slide) => {
-            salonImage.swiper.appendSlide(slide)
-            addedSalonImageSlides.push(slide)
-          })
+          if (!isSlideAlreadyAdded) {
+            const filteredSalonImageSlides = savedSlides.salonImage.filter(
+              (slide) => slide.innerHTML.includes(`alt="${option.color}"`)
+            )
+
+            filteredSalonImageSlides.forEach((slide) => {
+              salonImage.swiper.appendSlide(slide)
+              addedSalonImageSlides.push(slide)
+            })
+          }
         }
-      }
-    })
+      })
+      areAllSlidesWithSameAlt(colorSalon)
+        ? removeDuplicateSlides(colorSalon)
+        : ''
+      areAllSlidesWithSameAlt(salonImage)
+        ? removeDuplicateSlides(salonImage)
+        : ''
+      if (colorSalon.swiper.slides.length > 1) {
+        colorSalon.swiper.slideTo(colorSalon.swiper.params.slidesPerView)
+        colorSalon.swiper.params.centeredSlides = true
+        colorSalon.swiper.params.slideToClickedSlide = true
 
-    if (colorCarousel.swiper.slides.length > 1) {
-      setTimeout(() => {
-        // Обновляем все карусели
-        colorCarousel.swiper.params.centeredSlides = true
-        colorCarousel.swiper.params.slideToClickedSlide = true
-
-        colorCarousel.swiper.update()
-        colorImageCarousel.swiper.update()
-        diskDiametr.swiper.update()
-        diskImage.swiper.update()
         colorSalon.swiper.update()
         salonImage.swiper.update()
-
-        colorCarousel.swiper.slideTo(colorCarousel.swiper.params.slidesPerView)
-      }, 1000)
-    }
-    if (colorSalon.swiper.slides.length > 1) {
-      colorSalon.swiper.slideTo(colorSalon.swiper.params.slidesPerView)
-      colorSalon.swiper.params.centeredSlides = true
-      colorSalon.swiper.params.slideToClickedSlide = true
-
-      colorSalon.swiper.update()
-      salonImage.swiper.update()
+      }
     }
 
-    areAllSlidesWithSameAlt(colorCarousel)
-      ? removeDuplicateSlides(colorCarousel)
-      : ''
-    areAllSlidesWithSameAlt(colorImageCarousel)
-      ? removeDuplicateSlides(colorImageCarousel)
-      : ''
-    areAllSlidesWithSameAlt(diskDiametr)
-      ? removeDuplicateSlides(diskDiametr)
-      : ''
-    areAllSlidesWithSameAlt(colorSalon) ? removeDuplicateSlides(colorSalon) : ''
-    areAllSlidesWithSameAlt(salonImage) ? removeDuplicateSlides(salonImage) : ''
+    colorCarousel.swiper.update()
+    colorImageCarousel.swiper.update()
+    diskDiametr.swiper.update()
+    diskImage.swiper.update()
+    colorSalon.swiper.update()
+    salonImage.swiper.update()
 
-    if (colorCarousel.swiper.slides.length <= 1) {
-      colorCarousel
-        .querySelectorAll('.elementor-swiper-button')
-        .forEach((e) => {
-          e.style.display = 'none'
-        })
-    } else {
-      colorCarousel
-        .querySelectorAll('.elementor-swiper-button')
-        .forEach((e) => {
-          e.style.display = 'inline-flex'
-        })
-    }
-
-    if (diskDiametr.swiper.slides.length <= 1) {
-      diskDiametr.querySelectorAll('.elementor-swiper-button').forEach((e) => {
+    colorSalon.querySelectorAll('.elementor-swiper-button').forEach((e) => {
+      if (colorSalon.swiper.slides.length <= 1) {
         e.style.display = 'none'
-      })
-    } else {
-      diskDiametr.querySelectorAll('.elementor-swiper-button').forEach((e) => {
+      } else {
         e.style.display = 'inline-flex'
-      })
-    }
-
-    if (colorSalon.swiper.slides.length <= 1) {
-      colorSalon.querySelectorAll('.elementor-swiper-button').forEach((e) => {
-        e.style.display = 'none'
-      })
-    } else {
-      colorSalon.querySelectorAll('.elementor-swiper-button').forEach((e) => {
-        e.style.display = 'inline-flex'
-      })
-    }
+      }
+    })
 
     await updateTitlePrice()
   }
 }
+//удаляем дубликаты, если один элемент
 function removeDuplicateSlides(carouselElement) {
   // Создаем объект для хранения уникальных значений alt
   const uniqueAlts = {}
@@ -325,7 +299,9 @@ function removeDuplicateSlides(carouselElement) {
       slide.remove()
     }
   })
+  console.log('123', uniqueAlts)
 }
+//проверяем на одинаковый alt у всех в карусели
 function areAllSlidesWithSameAlt(carousel) {
   const slides = carousel.querySelectorAll('.swiper-slide')
 
@@ -355,6 +331,7 @@ function areAllSlidesWithSameAlt(carousel) {
 }
 
 // API курсы валют
+
 async function fetchCurrencyRates() {
   try {
     const storedData = localStorage.getItem('currencyRates')
@@ -400,7 +377,7 @@ async function saveCurrencyRatesToLocalStorage(data) {
 
 // КАРУСЕЛИ НА НУЖНЫЙ СЛАЙД ОБНОВЛЕНИЯ
 async function updateCaruselDisk(dc) {
-  console.log('dc', dc)
+  diskImage.swiper.enable()
   diskImage.swiper.removeAllSlides()
 
   // Функция, которая находит видимый слайд с определенным цветом (игнорируя индекс)
@@ -437,7 +414,7 @@ async function updateCaruselDisk(dc) {
   // Проверяем существование объекта diskDiametr и его свойства swiper
   if (diskDiametr) {
     // Вызываем метод slideTo для объекта diskDiametr.swiper
-    diskDiametr.swiper.slideTo(diskDiametr.swiper.params.slidesPerView, 0)
+    diskDiametr.swiper.slideTo(diskDiametr.swiper.params.slidesPerView, 400)
     diskDiametr.swiper.update()
   }
 
@@ -448,6 +425,14 @@ async function updateCaruselDisk(dc) {
     diskImage.swiper.update()
   }
 
+  diskDiametr.querySelectorAll('.elementor-swiper-button').forEach((e) => {
+    if (diskDiametr.swiper.slides.length <= 1) {
+      e.style.display = 'none'
+    } else {
+      e.style.display = 'inline-flex'
+    }
+  })
+  diskImage.swiper.disable()
   updateTitlePrice()
 }
 
@@ -587,14 +572,20 @@ const updateTitlePrice = async () => {
     await updateImages(myDiskImage)
   }
 
-  if (salonImage && salonImage.swiper) {
-    arrayImagesForPDF[2] = salonImage
-      .querySelector('.swiper-slide-active img')
-      .getAttribute('src')
-  } else {
-    arrayImagesForPDF[2] = salonImage
-      .querySelector('.swiper-slide img')
-      .getAttribute('src')
+  if (
+    salonImage &&
+    salonImage.swiper &&
+    salonImage.querySelector('.swiper-slide-active img')
+  ) {
+    arrayImagesForPDF[2] = salonImage.querySelector(
+      '.swiper-slide-active img'
+    )?.src
+  } else if (
+    salonImage &&
+    salonImage.swiper &&
+    salonImage.querySelector('.swiper-slide img')
+  ) {
+    arrayImagesForPDF[2] = salonImage.querySelector('.swiper-slide img')?.src
   }
 
   updateCheck()
@@ -644,9 +635,10 @@ const removeShowDopOptions = () => {
 
     const checkboxInput = checkbox.querySelector(`#${child.id}`)
     // Установка состояния чекбокса в зависимости от условий
-
-    option.show = false
-    checkboxInput.checked = false
+    if (option.check) {
+      option.show = false
+      checkboxInput.checked = false
+    }
 
     const modelsToShow = option.models // Список моделей, для которых опция должна быть показана
 
@@ -712,9 +704,11 @@ const updateDopOptions = () => {
 
     // Добавление слушателей событий для чекбоксов
     const handleClick = () => {
-      checkboxInput.checked = !checkboxInput.checked
-      option.show = checkboxInput.checked
-      updateCheck()
+      if (option.check) {
+        checkboxInput.checked = !checkboxInput.checked
+        option.show = checkboxInput.checked
+        updateCheck()
+      }
     }
 
     checkboxLabel2.addEventListener('click', handleClick)
@@ -759,175 +753,6 @@ const checkDopOptions = () => {
 document.addEventListener('DOMContentLoaded', async (event) => {
   updateDopOptions()
 })
-
-// РАБОТА  С МОДЕЛЯМИ
-// ---- НОВЫЙ МЕТОД --------
-
-// Определение функции select
-function select(selector) {
-  return document.querySelectorAll(selector)
-}
-
-/**
- * Получение ID элемента на основе имени модели.
- * @param {string} name - Имя модели.
- * @param {string} prefix - Префикс ID (по умолчанию 'accordion-car-model-').
- * @returns {string} - ID элемента.
- */
-function getElementId(name, prefix = 'accordion-car-model-') {
-  const id = `${prefix}${name.toLowerCase()}`
-  return id
-}
-
-/**
- * Создание объекта с элементами для модели.
- * @param {string} modelName - Название модели.
- * @param {object} modelInfo - Информация о модели.
- * @returns {object} - Объект с элементами для модели.
- */
-function createModelElement(modelName, modelInfo) {
-  const lowercaseName = modelName.toLowerCase()
-  const elements = {
-    model: select(`.${getElementId(lowercaseName)}`),
-    acc: select(`.${getElementId(lowercaseName)} h4`),
-    mobileButton: select(`.car-${lowercaseName}-mobile`),
-    accordionItem: select(
-      `.${getElementId(lowercaseName)} .elementor-tab-title`
-    ),
-  }
-  return elements
-}
-
-/**
- * Определение элементов для каждой модели.
- * @param {array} models - Массив объектов с информацией о моделях.
- * @returns {object} - Объект с элементами для каждой модели.
- */
-function defineModelElements(models) {
-  const elements = {}
-  models.forEach((model) => {
-    const modelName = Object.keys(model)[0]
-    elements[modelName] = createModelElement(modelName, model[modelName])
-  })
-  return elements
-}
-
-// СОЗДАНИЕ ЭЛЕМЕНТОВ - ПРАЙС В МОДЕЛИ
-const createDivPriceModel = (modelName) => {
-  const divPriceModel = document.createElement('div')
-  divPriceModel.className = `car${modelName}Model` // Используем динамический класс
-  divPriceModel.id = `carmodel-price-${modelName.toLowerCase()}`
-  return divPriceModel
-}
-
-// Получаем все модели из carState.models
-const modelNames = carState.models.map((model) => Object.keys(model)[0])
-// Определяем элементы для каждой модели
-const modelElements = defineModelElements(carState.models)
-// Создаем динамически divPriceModel для каждой модели
-const divPriceModels = {}
-modelNames.forEach((modelName) => {
-  divPriceModels[modelName] = createDivPriceModel(modelName)
-})
-
-// ЗАКРЫТОЕ ПОЛОЖЕНИЕ АККОРДИОНОВ
-async function closeAccordions() {
-  modelNames.forEach((e) => {
-    modelElements[e].accordionItem[0].click()
-  })
-}
-// СОЗДАЕМ ЦЕНУ АККОРДИОНАМ
-const innerPriceTitleModels = () => {
-  // ЗАПИСЬ СТОИМОСТИ В ЗАГОЛОВКИ АККАРДИОНА
-  // СКИДКА модели комплектации
-  modelNames.forEach((modelName, index) => {
-    divPriceModels[modelName].innerHTML = `
-            <div style="display:flex;flex-direction:column; gap: 8px;">
-            ${
-              carState.models[index][modelName].sale !== 0 &&
-              carState.models[index][modelName].sale
-                ? `<span style="font-size:16; font-weight:300"><del style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
-                : ''
-            }
-            <span style="font-weight:700;">${numberWithSpaces(
-              myPriceModels[index]
-            )} руб.</span>
-            </div>
-        `
-  })
-
-  modelNames.forEach((modelName, index) => {
-    const price = numberWithSpaces(myPriceModels[index])
-    modelElements[modelName].acc.forEach((element) => {
-      element.innerHTML = `
-          <div style="display:flex;flex-direction:column; gap: 8px;">
-            ${
-              carState.models[index][modelName].sale !== 0 &&
-              carState.models[index][modelName].sale
-                ? `<span style="font-size:20px; font-weight:300"><del  style="color: white;">${carState.models[index][modelName].sale} руб.</del></span>`
-                : ''
-            }
-            <span style="font-weight:700;">${price} руб.</span>
-          </div>
-        `
-    })
-
-    modelElements[modelName].accordionItem[0].appendChild(
-      divPriceModels[modelName]
-    )
-  })
-}
-
-// Обновление кнопок
-function createAndAttachButtonClickHandler(modelName) {
-  const buttons = document.querySelectorAll(
-    `.car-${modelName.toLowerCase()}-mobile`
-  )
-
-  buttons.forEach((button) => {
-    button.addEventListener('click', () => {
-      carState.model[1] = `${modelName}`
-      updateButtonState(carState)
-      removeShowDopOptions()
-      updateCheck()
-    })
-  })
-}
-
-// Функция обновления состояния кнопок моделей
-function updateButtonState(carState) {
-  modelNames.forEach((modelName) => {
-    const isSelected = carState.model[1] === `${modelName}`
-    const buttons = document.querySelectorAll(
-      `.car-${modelName.toLowerCase()}-mobile`
-    )
-
-    buttons.forEach((button) => {
-      const buttonTextElement = button.querySelector('.elementor-button-text')
-      const elementorButton = button.querySelector('.elementor-button')
-
-      button.style.cursor = 'pointer'
-      button.style.borderRadius = '3px'
-
-      if (isSelected) {
-        // Если выбрано, измените фон и цвет текста
-        button.style.backgroundColor = '#fff'
-        elementorButton ? (elementorButton.style.backgroundColor = '#fff') : ''
-        buttonTextElement.style.color = '#000'
-        updateOptions(modelName)
-      } else {
-        // Если не выбрано, восстановите стандартные стили
-        button.style.backgroundColor = '#DB2424'
-        elementorButton
-          ? (elementorButton.style.backgroundColor = '#DB2424')
-          : ''
-        buttonTextElement.style.color = '#fff'
-      }
-
-      buttonTextElement.textContent = isSelected ? 'ВЫБРАНО' : 'ВЫБРАТЬ'
-    })
-  })
-}
 
 let updatedCarState
 let myPriceModels
@@ -1224,6 +1049,11 @@ const indexOption = (property, value, searchBy = 'color') => {
 }
 
 // Первое  ОБНОВЛЕНИЕ САЙТА (КАРУСЕЛИ, АККОРДИОН, ШАПКА)
+const dopOptionsWrapper = document.querySelector(
+  '.dop-options-wrapper .elementor-widget-wrap'
+)
+const children = dopOptionsWrapper.children
+
 const updateWebsite = () => {
   // Сохраняем слайды
   savedSlides.colorCarousel = colorCarousel.swiper.slides
@@ -1237,6 +1067,15 @@ const updateWebsite = () => {
   originalColorOptions = [...carState.options.color[2]]
   originalWheelsOptions = [...carState.options.wheels[2]]
   originalInteriorColorOptions = [...carState.options.interiorColor[2]]
+
+  carState.options.runningBoards[0].forEach((option, index) => {
+    const child = children[index]
+    const checkbox = document.getElementById(child.id)
+    const checkboxInput = checkbox.querySelector(`#${child.id}`)
+    if (!option.check) {
+      checkboxInput.checked = true
+    }
+  })
 
   //Вычисляем количество моделей для выравнивания
   const m = document.querySelectorAll('#carget-models .elementor-column').length
@@ -1273,6 +1112,7 @@ const updateWebsite = () => {
 
   closeAccordions()
   updateButtonState(carState)
+  updateFlexWrapModelsContainer()
   updateCheck(totalPrice)
   innerPriceHeader()
   innerPriceTitleModels()
@@ -1700,6 +1540,7 @@ const handleColorCarouselChange = async (e) => {
   }
 
   try {
+    colorImageCarousel.swiper.enable()
     // Установите флаг блокировки
     isUpdatingCarousel = true
     let currentColor, currentPrice
@@ -1708,13 +1549,11 @@ const handleColorCarouselChange = async (e) => {
     if (colorImageCarousel.swiper.slideTo(e.realIndex + 1, 400)) {
       colorImageCarousel.swiper.slideTo(e.realIndex + 1, 400)
       const index = carState.options.color[2].length <= 1 ? 0 : e.realIndex
-      console.log('index true', index)
       currentColor = await indexOption('color', index, 'index').color
       currentPrice = await indexOption('color', index, 'index').price
     } else {
       colorImageCarousel.swiper.slideTo(e.realIndex + 2, 400)
       const index = carState.options.color[2].length <= 1 ? 0 : e.realIndex + 1
-      console.log('index false', index)
       currentColor = await indexOption('color', index, 'index').color
       currentPrice = await indexOption('color', index, 'index').price
     }
@@ -1728,13 +1567,20 @@ const handleColorCarouselChange = async (e) => {
     await updateTitlePrice()
 
     isUpdatingCarousel = false
+    colorCarousel.querySelectorAll('.elementor-swiper-button').forEach((e) => {
+      if (colorCarousel.swiper.slides.length <= 1) {
+        e.style.display = 'none'
+      } else {
+        e.style.display = 'inline-flex'
+      }
+    })
+    colorImageCarousel.swiper.disable()
   } catch (error) {
     console.error('Error in handleColorCarouselChange event:', error)
     isUpdatingCarousel = false
   }
 }
 const handleColorImageCarouselChange = async (e) => {
-  colorCarousel.swiper.params.centeredSlides = true
   colorCarousel.swiper.params.slideToClickedSlide = true
   colorCarousel.swiper.update()
 
@@ -1742,7 +1588,6 @@ const handleColorImageCarouselChange = async (e) => {
   if (isUpdatingCarousel) {
     return
   }
-
   // Устанавливаем флаг блокировки
   isUpdatingCarousel = true
 
@@ -1823,6 +1668,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 
       // Установите флаг блокировки
       try {
+        salonImage.swiper.enable()
         isUpdatingCarousel = true
 
         const currentColor = indexOption(
@@ -1849,14 +1695,22 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         }
 
         const slideIndex = findSlideIndexByAlt(colorSalon, activeSlideAlt)
+        carState.options.interiorColor[0] = currentPrice
+        carState.options.interiorColor[1] = currentColor
 
         if (slideIndex !== -1) {
-          carState.options.interiorColor[0] = currentPrice
-          carState.options.interiorColor[1] = currentColor
           salonImage.swiper.slideTo(e.realIndex + 1, 400)
-          updateTitlePrice()
         }
+        updateTitlePrice()
         isUpdatingCarousel = false
+        colorSalon.querySelectorAll('.elementor-swiper-button').forEach((e) => {
+          if (colorSalon.swiper.slides.length <= 1) {
+            e.style.display = 'none'
+          } else {
+            e.style.display = 'inline-flex'
+          }
+        })
+        salonImage.swiper.disable()
       } catch (error) {
         console.error('Error in diskDiametr activeIndexChange event:', error)
         isUpdatingCarousel = false
@@ -1940,12 +1794,13 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         }
 
         const slideIndex = findSlideIndexByAlt(diskDiametr, activeSlideAlt)
-        const slideIndex2 = findSlideIndexByAlt(diskImage, activeSlideAlt)
 
         if (slideIndex !== -1) {
           carState.options.wheels[0] = currentPrice
           carState.options.wheels[1] = currentColor
+          diskImage.swiper.enable()
           diskImage.swiper.slideTo(e.realIndex + 1, 400)
+          diskImage.swiper.disable()
           updateTitlePrice()
         }
 
@@ -2013,7 +1868,6 @@ document.addEventListener('DOMContentLoaded', async (event) => {
       console.log('Сайт загружен и готов к работе')
       myPDF()
       // Определение элементов каждой модели в аккордионах
-      const modelElements = defineModelElements(carState.models)
       cargetLoader.style.display = 'none'
       loader.style.display = 'none'
     }
