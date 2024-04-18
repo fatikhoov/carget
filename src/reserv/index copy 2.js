@@ -30,6 +30,10 @@ const arrayWrappers = [
   '.carget-runningBoards',
 ]
 
+const cargetModels = document.querySelector(
+  '#carget-models .elementor-container'
+)
+
 // ЦЕНА В ШАПКЕ
 const totalpriceElements = document.querySelectorAll('.header-totalprice')
 
@@ -871,17 +875,6 @@ const innerPriceTitleModels = () => {
     )
   })
 }
-//сколько в ряд блоков ставим комплектаций
-const updateFlexWrapModelsContainer = () => {
-  const cargetModels = document.querySelector(
-    '#carget-models .elementor-container'
-  )
-  if (cargetModels.children.length <= 4) {
-    cargetModels.style.flexWrap = 'nowrap'
-  } else if (cargetModels.children.length > 4) {
-    cargetModels.style.flexWrap = 'wrap'
-  }
-}
 // Обновление кнопок
 function createAndAttachButtonClickHandler(modelName) {
   const buttons = document.querySelectorAll(
@@ -1235,6 +1228,17 @@ const dopOptionsWrapper = document.querySelector(
 const children = dopOptionsWrapper.children
 
 const updateWebsite = () => {
+  
+  cargetModels.style.display = 'flex'
+  if (cargetModels.children.length <= 4) {
+    cargetModels.style.flexWrap = 'nowrap'
+    console.log('1', cargetModels.style.flexWrap);
+  }
+  if (cargetModels.children.length >= 5) {
+    cargetModels.style.flexWrap = 'wrap'
+    console.log('2', cargetModels.style.flexWrap);
+  }
+
   // Сохраняем слайды
   savedSlides.colorCarousel = colorCarousel.swiper.slides
   savedSlides.colorImageCarousel = colorImageCarousel.swiper.slides
@@ -1292,7 +1296,6 @@ const updateWebsite = () => {
 
   closeAccordions()
   updateButtonState(carState)
-  updateFlexWrapModelsContainer()
   updateCheck(totalPrice)
   innerPriceHeader()
   innerPriceTitleModels()

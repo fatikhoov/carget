@@ -42,3 +42,46 @@ async function saveCurrencyRatesToLocalStorage(data) {
   await localStorage.setItem('currencyRates', JSON.stringify(currencyRates))
   return data
 }
+
+const totalSaleCheck = () => {
+    // Сумма скидок для выбранной модели
+    const model = carState.models.find((model) => model[carState.model[1]])?.[
+      carState.model[1]
+    ]
+  
+    const modelDiscount = model && model.hasOwnProperty('sale') ? model.sale : 0
+  
+    // Сумма скидок для выбранного цвета
+    const colorDiscount =
+      carState.options.color[2].find(
+        (option) =>
+          option.color === carState.options.color[1] &&
+          option.hasOwnProperty('sale')
+      )?.sale || 0
+  
+    // Сумма скидок для выбранных колес
+    const wheelDiscount =
+      carState.options.wheels[2].find(
+        (wheel) => wheel.color === carState.options.wheels[1]
+      )?.sale || 0
+  
+    // Сумма скидок для выбранного цвета салона
+    const interiorColorDiscount =
+      carState.options.interiorColor[2].find(
+        (option) => option.color === carState.options.interiorColor[1]
+      )?.sale || 0
+  
+    const runningBoardsDiscount = carState.options.runningBoards[0]
+      .filter((option) => option.show && option.hasOwnProperty('sale'))
+      .reduce((totalDiscount, option) => totalDiscount + (option.sale || 0), 0)
+  
+    // Общая сумма всех скидок
+    const totalDiscount =
+      modelDiscount +
+      colorDiscount +
+      wheelDiscount +
+      interiorColorDiscount +
+      runningBoardsDiscount
+    saleAll = totalDiscount
+    return totalDiscount
+  }

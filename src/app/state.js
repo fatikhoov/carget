@@ -119,3 +119,8 @@ const tableBody4 = data4.map((item) => [
     margin: [0, 0, 0, 8],
   },
 ])
+// Первое  ОБНОВЛЕНИЕ САЙТА (КАРУСЕЛИ, АККОРДИОН, ШАПКА)
+const dopOptionsWrapper = document.querySelector(
+  '.dop-options-wrapper .elementor-widget-wrap'
+)
+const children = dopOptionsWrapper.children

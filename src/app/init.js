@@ -1,3 +1,141 @@
+
+const innerPriceHeader = () => {
+    // ЗАПИСЬ В ШАПКУ ТОТАЛ ПРАЙС
+    totalpriceElements.forEach((e) => {
+      e.innerHTML = numberWithSpaces(totalPrice)
+    })
+  }
+  
+  // ОБНОВЛЕНИЕ ЧЕКА
+async function updateCheck() {
+    totalSaleCheck() // Предполагается, что totalSaleCheck() возвращает числовое значение скидки
+    checkDopOtionShow()
+    checkDopOptions()
+  
+    if (saleAll && saleAll !== 0) {
+      ;(discountCheck.style.display = 'flex'),
+        (priceItemDiscount.style.display = 'flex')
+    } else {
+      ;(discountCheck.style.display = 'none'),
+        (priceItemDiscount.style.display = 'none')
+    }
+  
+    await sumCarPrices(updatedCarState, myPriceModels)
+    totalpriceElements.forEach((e) => {
+      e.innerHTML = numberWithSpaces(sumCarPrices(carState, myPriceModels))
+    })
+  
+    // Вставляем выбранные цвета, диски и салон
+    colorKuzovaElements.forEach((element) => {
+      element.textContent = carState.options.color[1]
+    })
+  
+    colorSalonaElements.forEach((element) => {
+      element.textContent = carState.options.interiorColor[1]
+    })
+  
+    diskElements.forEach((element) => {
+      element.textContent = `${carState.options.wheels[1]}`
+    })
+  
+    priceColorElements.forEach((element) => {
+      element.textContent = ` ${numberWithSpaces(carState.options.color[0])} руб.`
+    })
+  
+    priceColorSalonElements.forEach((element) => {
+      element.textContent = `${numberWithSpaces(
+        carState.options.interiorColor[0]
+      )} руб.`
+    })
+  
+    priceDiskElements.forEach((element) => {
+      element.textContent = ` ${numberWithSpaces(
+        carState.options.wheels[0]
+      )} руб.`
+    })
+  
+    // Вычисляем и вставляем общую скидку
+  
+    totalSaleCarElements.forEach((element) => {
+      element.innerHTML =
+        saleAll === 0 || saleAll === null || saleAll === undefined
+          ? 'Нет'
+          : `${saleAll} руб.`
+    })
+    // Вычисляем и вставляем общую стоимость
+    totalPriceCarElements.forEach((element) => {
+      element.textContent = `${numberWithSpaces(
+        sumCarPrices(carState, myPriceModels)
+      )} руб.`
+    })
+  }
+
+const updateWebsite = () => {
+    // Сохраняем слайды
+    savedSlides.colorCarousel = colorCarousel.swiper.slides
+    savedSlides.colorImageCarousel = colorImageCarousel.swiper.slides
+    savedSlides.diskDiametr = diskDiametr.swiper.slides
+    savedSlides.diskImage = diskImage.swiper.slides
+    savedSlides.colorSalon = colorSalon.swiper.slides
+    savedSlides.salonImage = salonImage.swiper.slides
+  
+    //сохраняем объект стейта
+    originalColorOptions = [...carState.options.color[2]]
+    originalWheelsOptions = [...carState.options.wheels[2]]
+    originalInteriorColorOptions = [...carState.options.interiorColor[2]]
+  
+    carState.options.runningBoards[0].forEach((option, index) => {
+      const child = children[index]
+      const checkbox = document.getElementById(child.id)
+      const checkboxInput = checkbox.querySelector(`#${child.id}`)
+      if (!option.check) {
+        checkboxInput.checked = true
+      }
+    })
+  
+    //Вычисляем количество моделей для выравнивания
+    const m = document.querySelectorAll('#carget-models .elementor-column').length
+    let divisor
+    if (m === 1) {
+      divisor = 1
+    } else if (m % 2 === 0) {
+      divisor = 2
+    } else {
+      divisor = 3
+    }
+    document.querySelectorAll('#carget-models .elementor-column').forEach((e) => {
+      e.style.width = `${96 / divisor}%`
+    })
+  
+    // ПРОВЕРКА НА ДИСКИ TRUE FALSE
+    if (carState.options.wheels[3] === true) {
+      myArrowDiskImages = saveAllSlides(diskImage.swiper)
+  
+      updateCaruselDisk(`${carState.options.color[1]}-0`)
+      // Другие операции с дисками или что угодно, что нужно выполнить, если wheels[3] === true
+    } else if (
+      carState.options.wheels[3] === false &&
+      colorImageCarousel.swiper
+    ) {
+      myArrowDiskImages = saveAllSlides(colorImageCarousel.swiper)
+  
+      document.querySelectorAll(arrayWrappers[1]).forEach((e) => {
+        e.style.display = 'none'
+      })
+    }
+  
+    checkDopOtionShow()
+  
+    closeAccordions()
+    updateButtonState(carState)
+    updateFlexWrapModelsContainer()
+    updateCheck(totalPrice)
+    innerPriceHeader()
+    innerPriceTitleModels()
+    updateTitlePrice()
+    myPDF()
+  }
+
 //функции прослушиватели
 const handleColorCarouselChange = async (e) => {
   colorCarousel.swiper.params.centeredSlides = true
