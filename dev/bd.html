@@ -1,147 +1,16 @@
 <script>
+  const isExelLoadingFinish = false
   let Google_DB = {}
 
   let carData = {}
 
   let modelsArray = []
-
-  function innerGoogleBD() {
-    // Проходимся по элементам Google_DB
-    for (let i = 0; i < Google_DB.length; i++) {
-      // Пропускаем первый элемент и проверяем наличие данных в текущем строковом массиве
-      if (i === 0 || Google_DB[i].some((entry) => entry !== '')) {
-        // Фильтруем пустые элементы и пропускаем первый элемент
-        let filteredData = Google_DB[i].slice(1).filter((entry) => entry !== '')
-
-        // Если есть данные в текущем строковом массиве
-        if (filteredData.length > 0) {
-          // Создаем объект для хранения данных текущей категории
-          let categoryData = {}
-
-          // Если текущая категория - модели
-          if (Google_DB[i][0] === 'models') {
-            // Проходимся по элементам данных и преобразуем строки в объекты
-            for (let j = 0; j < filteredData.length; j++) {
-              // Проверяем, является ли текущий элемент строкой
-              if (typeof filteredData[j] === 'string') {
-                // Удаляем лишние символы "{" и "}", а также лишние пробелы и разбиваем строку на ключ и значение
-                let parts = filteredData[j]
-                  .replace('{', '')
-                  .replace('}', '')
-                  .trim()
-                  .split(':')
-                // Если удалось разделить строку
-                if (parts.length === 2) {
-                  // Извлекаем ключ и значение и добавляем данные в объект
-                  let key = parts[0].trim()
-                  let value = JSON.parse(parts[1].trim())
-                  categoryData[key] = value
-                }
-              }
-            }
-          } else {
-            // Проходимся по элементам данных и парсим их в объекты
-            for (let j = 0; j < filteredData.length; j++) {
-              // Проверяем, является ли текущий элемент строкой
-              if (typeof filteredData[j] === 'string') {
-                // Разбиваем строку на ключ и значение по разделителю ":"
-                let parts = filteredData[j].split(':')
-                // Если удалось разделить строку
-                if (parts.length === 2) {
-                  // Удаляем лишние пробелы в ключе и значении и добавляем данные в объект
-                  let key = parts[0].trim()
-                  let value = parts[1].trim()
-                  categoryData[key] = value
-                }
-              }
-            }
-          }
-
-          // Добавляем данные текущей категории в объект carData
-          carData[Google_DB[i][0]] = categoryData
-        }
-      }
-    }
-
-    // Выводим объект с данными в консоль
-    console.log(carData)
-  }
-
-  function convertModelsData(modelsData) {
-    // Проходимся по элементам массива данных о моделях, начиная с второго элемента
-    for (let i = 1; i < modelsData.length; i++) {
-      // Если текущий элемент не пустой
-      if (modelsData[i]) {
-        // Разделяем элемент на имя модели и данные о ней по символу '#'
-        let [modelName, modelDataStr] = modelsData[i]
-          .split('#')
-          .map((str) => str.trim())
-
-        // Инициализируем объект данных о модели
-        let modelData = {}
-
-        // Разделяем данные о модели на строки
-        let modelDataLines = modelDataStr.split('\n')
-
-        // Проходимся по каждой строке данных о модели
-        modelDataLines.forEach((line) => {
-          // Если строка не пустая
-          if (line.trim() !== '') {
-            // Разделяем строку на ключ и значение по символу ':'
-            let [key, value] = line.split(':').map((str) => str.trim())
-            // Если есть ключ и значение
-            if (key && value) {
-              // Приводим значение к числу, если это возможно
-              value = !isNaN(value) ? parseFloat(value) : value
-              // Добавляем пару ключ-значение к данным о модели
-              modelData[key] = value
-            }
-          }
-        })
-
-        // Создаем объект модели для добавления в массив моделей
-        let modelObject = { [modelName]: modelData }
-
-        // Добавляем объект модели в массив моделей
-        modelsArray.push(modelObject)
-      }
-    }
-
-    return modelsArray
-  }
-
-  function gExel() {
-    const sheetName = document.title
-    const URL_GOOGLE_SHEET =
-      'https://script.google.com/macros/s/AKfycbzt3Vbt7jOPOLf5DdyMuBYaJj30_3rHubG_hkRog6EX574wBRkZIuLWB1wKefZtemR5/exec?sheetName='
-    const app = URL_GOOGLE_SHEET + sheetName
-
-    let xhr = new XMLHttpRequest()
-
-    xhr.open('GET', app)
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return
-
-      if (xhr.status == 200) {
-        try {
-          var r = JSON.parse(xhr.responseText)
-          Google_DB = r['result']
-          console.log('result', Google_DB)
-        } catch (e) {
-          console.error('Error parsing JSON:', e)
-        }
-      }
-    }
-    xhr.send()
-  }
-  gExel()
 </script>
 
 <script>
   let carState = {
     model: ['Zeekr 001 NEW', 'We'], // выбранная модель
     models: [
-      // все модели, стоимости в юанях
       { We: { price: 269000, sale: 0 } },
       { We_4wd: { price: 269000, sale: 0 } },
       { Me: { price: 299000, sale: 0 } },
@@ -341,8 +210,8 @@
           {
             price: 166400,
             sale: 0,
-            show: true,
-            check: false,
+            show: false,
+            check: true,
             title: 'ДОМАШНЯЯ ЗАРЯДКА 20 КВТ',
             description: 'ПРОВОД 30 МЕТРОВ',
             models: ['All'],
@@ -351,8 +220,8 @@
           {
             price: 78000,
             sale: 0,
-            show: true,
-            check: false,
+            show: false,
+            check: true,
             title: 'ДОМАШНЯЯ ЗАРЯДКА 7 КВТ',
             description: 'ПРОВОД 30 МЕТРОВ',
             models: ['All'],
