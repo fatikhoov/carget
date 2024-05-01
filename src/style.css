@@ -10,6 +10,7 @@
 .elementor-accordion-item .elementor-widget-wrap {
   gap: 16px;
 }
+
 .carget-acordion-color,
 .carget-acordion-disk,
 .carget-acordion-salon {
@@ -46,7 +47,7 @@
   transform: translate(-50%, -50%);
   margin: auto;
   background: #242325;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .loader:before,
@@ -58,7 +59,7 @@
   box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.3) inset;
 }
 .loader:after {
-  box-shadow: 0 2px 0 #ff3d00 inset;
+  box-shadow: 0 4px 0 #ff3d00 inset;
   animation: rotate 2s linear infinite;
 }
 
@@ -91,6 +92,10 @@
     transform: translateY(16px) !important;
   }
 
+  .elementor-accordion-title {
+    font-size: 18px !important;
+  }
+
   .dop-options-wrapper .elementor-widget-wrap {
     gap: 32px;
   }
@@ -105,6 +110,13 @@
   .dop-option-description {
     font-size: 14px;
     font-weight: 500;
+  }
+
+  .check-list-image {
+    order: 0;
+  }
+  .check-list-body {
+    order: 1;
   }
 
   .check-list-wrapper .elementor-row {

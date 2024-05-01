@@ -1,0 +1,143 @@
+  //  models //
+
+90kwh_awd#
+"price": 325000
+"sale": 0
+"show": true
+    
+116kwh_awd#
+"price": 360000
+"sale": 0
+"show": true
+    
+90kwh_luxury_edition#
+"price": 350000
+"sale": 0
+"show": true
+    
+116kwh_luxury_edition#
+"price": 390000
+"sale": 0
+"show": true
+
+  //  color //
+    
+"price": 0
+"sale": 0
+"color": 'СЕРЫЙ' 
+"show": true
+"models": 'All'
+
+"price": 130000
+"sale": 0
+"color": 'СЕРЫЙ МАТОВЫЙ' 
+"show": true
+"models": 'All'
+
+"price": 78000
+"sale": 0
+"color": 'ЧЕРНЫЙ' 
+"show": true
+"models": 'All'
+
+"price": 0
+"sale": 0
+"color": 'БЕЛЫЙ' 
+"show": true
+"models": 'All'
+
+"price": 130000
+"sale": 0
+"color": 'БЕЛЫЙ МАТОВЫЙ' 
+"show": true
+"models": 'All'
+
+"price": 78000
+"sale": 0
+"color": 'АКВА' 
+"show": true
+"models": 'All'
+
+
+  // wheels //
+  
+"color": '21” LOW WIND' 
+"diametr": 21
+"price": 0
+"sale": 0
+"show": true
+"models": 'All'
+colors": 'All'
+
+"color": '21” AIR' 
+"diametr": 21
+"price": 2600
+"sale": 0
+"show": true
+"models": 'All'
+colors": 'All'
+
+"color": '22” ROTARY С СУППОРТАМИ BREMBO' 
+"diametr": 21
+"price": 16900
+"sale": 0
+"show": true
+"models": 'All'
+colors": 'All'
+
+"color": '22” BEAM C СУППОРТАМИ BREMBO' 
+"diametr": 21
+"price": 19500
+"sale": 0
+"show": true
+"models": 'All'
+colors": 'All'        
+      
+  // interiorColor //
+    
+"price": 0 
+"sale": 0 
+"color": 'БОРДОВЫЙ'
+"show": true
+"models": 'All'
+
+"price": 0 
+"sale": 0 
+"color": 'ТЕМНО-СЕРЫЙ'
+"show": true
+"models": 'All'
+
+"price": 0 
+"sale": 0 
+"color": 'СВЕТЛО-СЕРЫЙ'
+"show": true
+"models": 'All'
+
+  // runningBoards //
+
+"price": 65000
+"sale": 0
+"show": false
+"check": true
+"title": 'HALO SCREEN '
+"description": 'Светодиодный матричный дисплей в верхней части капота'
+"models": '90kwh_awd', '116kwh_awd', '90kwh_luxury_edition'
+"showOption": true
+
+"price": 0
+"sale": 39000
+"show": false
+"check": true
+"title": 'ИНТЕЛЛЕКТУАЛЬНАЯ СИСТЕМА АРОМАТИЗАЦИИ САЛОНА'
+"description": 'Встроенные 3 аромата с регулируемой концентрацией'
+"models": 'All'
+"showOption": true
+
+price: 325000
+"sale": 0
+"show": false
+"title": 'VIP пакет (4 места)'
+"check": true
+"description": '"вентиляция"/массаж/обогрев всех сидений автомобиля, многофункциональные подлокотники на задних сиденьях, кнопка boss, беспроводная зарядка для мобильных телефонов сзади, экран HALO, эффекты окружающего освещения, заднее защитное стекло'
+"models": '90kwh_awd', '116kwh_awd', '90kwh_luxury_edition'
+"showOption": true
