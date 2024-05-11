@@ -51,12 +51,14 @@ function getCarStateFromLocalStorageForGoogleSheets() {
     gExel()
   } else {
     carState = deepCopy(savedState.carState)
-
+    console.log('after load app')
     loadConfigutation()
+    console.log('before load app')
   }
 }
 
 function processDataFromExcel(data) {
+  console.log('process start', data)
   // Обработка данных о моделях
   function processModelsData(modelsData) {
     let modelsArray = []
@@ -323,9 +325,10 @@ function processDataFromExcel(data) {
         break
     }
   }
-
+  console.log('process finish')
   saveCarStateToLocalStorageForGoogleSheets(carState)
   loadConfigutation()
+  console.log('process finish before load')
 }
 
 function gExel() {
