@@ -2246,6 +2246,7 @@ function isCarStateFresh() {
   }
   return true
 }
+
 function saveCarStateToLocalStorageForGoogleSheets(state) {
   const key = document.title
   const serializedState = JSON.stringify({

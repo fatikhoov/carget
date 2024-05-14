@@ -1,3 +1,83 @@
+const initializeModels = () => {
+  if (carState && carState.models) {
+    console.log('carState и carState.models определены.')
+
+    modelNames = carState.models.map((model) => Object.keys(model)[0])
+    modelElements = defineModelElements(carState.models)
+
+    modelNames.forEach((modelName) => {
+      divPriceModels[modelName] = createDivPriceModel(modelName)
+      console.log(`Создан div для модели ${modelName}.`)
+
+      createAndAttachButtonClickHandler(modelName)
+      console.log(`Добавлен обработчик кнопки для модели ${modelName}.`)
+    })
+  } else {
+    console.error('carState или carState.models не определены.')
+  }
+}
+
+function deepCopy(obj) {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj // Если obj не является объектом, возвращаем его
+  }
+
+  // Создаем новый объект или массив, в зависимости от типа obj
+  const copy = Array.isArray(obj) ? [] : {}
+
+  // Рекурсивно копируем свойства obj в новый объект или массив
+  for (const key in obj) {
+    copy[key] = deepCopy(obj[key])
+  }
+  return copy
+}
+
+function isCarStateFresh() {
+  const key = document.title
+
+  const serializedState = localStorage.getItem(key)
+  if (serializedState === null) {
+    return false
+  }
+
+  const savedState = JSON.parse(serializedState)
+  const savedTime = new Date(savedState.lastUpdated)
+  const currentTime = new Date()
+  const hoursDifference = Math.abs(currentTime - savedTime) / 36e5
+
+  if (hoursDifference >= 24) {
+    localStorage.removeItem(key)
+    return false
+  }
+  return true
+}
+
+function saveCarStateToLocalStorageForGoogleSheets(state) {
+  const key = document.title
+  const serializedState = JSON.stringify({
+    lastUpdated: new Date().toISOString(),
+    carState: state,
+  })
+  localStorage.setItem(key, serializedState)
+}
+function getCarStateFromLocalStorageForGoogleSheets() {
+  const key = document.title
+  const serializedState = localStorage.getItem(key)
+  const savedState = JSON.parse(serializedState)
+
+  const log = isCarStateFresh()
+
+  if (!log) {
+    console.log('log', log)
+    gExel()
+  } else {
+    console.log('log', log)
+    carState = deepCopy(savedState.carState)
+    initializeModels()
+    loadConfigutation()
+  }
+}
+
 function processDataFromExcel(data) {
   // Обработка данных о моделях
   function processModelsData(modelsData) {
@@ -30,17 +110,24 @@ function processDataFromExcel(data) {
     carState.model[0] = document.title
     carState.model[1] = Object.keys(carState.models[0])[0]
 
-    // Получаем все модели из carState.models
-    modelNames = carState.models.map((model) => Object.keys(model)[0])
-    // Определяем элементы для каждой модели
-    modelElements = defineModelElements(carState.models)
-    modelNames.forEach((modelName) => {
-      divPriceModels[modelName] = createDivPriceModel(modelName)
-    })
     return modelsArray
   }
   // Обработка цвет, диск, цвет
   function processData(data) {
+    function processModelsString(modelsString) {
+      // Убираем кавычки, если они есть
+      modelsString = modelsString.replace(/['"]/g, '')
+
+      // Если строка содержит запятые, значит есть несколько моделей
+      if (modelsString.includes(',')) {
+        // Разбиваем строку по запятой и удаляем лишние пробелы
+        return modelsString.split(',').map((model) => model.trim())
+      } else {
+        // Возвращаем массив из одной модели
+        return [modelsString.trim()]
+      }
+    }
+
     let processedData = []
 
     for (let i = 0; i < data.length; i++) {
@@ -74,10 +161,7 @@ function processDataFromExcel(data) {
                 obj.show = value === 'true'
                 break
               case 'models':
-                // Обрабатываем строку с моделями
-                obj.models = value
-                  .split(',')
-                  .map((model) => model.trim().replace(/['"]/g, ''))
+                obj.models = processModelsString(value)
                 break
               case 'colors':
                 // Обрабатываем строку с цветами
@@ -97,9 +181,7 @@ function processDataFromExcel(data) {
             )
           }
         })
-
-        // Проверяем, были ли добавлены какие-либо данные в объект
-        if (Object.keys(obj).length > 0 && obj.show) {
+        if (obj.show) {
           processedData.push(obj)
         }
       }
@@ -226,7 +308,12 @@ function processDataFromExcel(data) {
     updateOtherInCarState(other)
   }
 
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i < 50; i++) {
+    // Проверяем, существует ли элемент data[i] и имеет ли он свойство data[i][0]
+    if (!data[i] || !data[i][0]) {
+      // Если элемент data[i][0] отсутствует, прерываем выполнение цикла
+      break
+    }
     let fieldName = data[i][0]
     let fieldData = data[i].slice(1).filter(Boolean) // Удаляем пустые значения
 
@@ -259,13 +346,16 @@ function processDataFromExcel(data) {
     }
   }
 
+  // saveCarStateToLocalStorageForGoogleSheets(carState)
   loadConfigutation()
 }
 
 function gExel() {
   const sheetName = document.title
+
   const URL_GOOGLE_SHEET =
     'https://script.google.com/macros/s/AKfycbzt3Vbt7jOPOLf5DdyMuBYaJj30_3rHubG_hkRog6EX574wBRkZIuLWB1wKefZtemR5/exec?sheetName='
+
   const app = URL_GOOGLE_SHEET + sheetName
 
   let xhr = new XMLHttpRequest()
@@ -277,13 +367,27 @@ function gExel() {
     if (xhr.status == 200) {
       try {
         var r = JSON.parse(xhr.responseText)
+        console.log('JSON успешно распарсен:', r)
+
         Google_DB = r['result']
+        console.log('Google_DB успешно установлен:', Google_DB)
+
         processDataFromExcel(Google_DB)
+        initializeModels()
       } catch (e) {
-        console.error('Error parsing JSON:', e)
+        console.error('Ошибка при парсинге JSON:', e)
       }
     }
   }
   xhr.send()
 }
-gExel()
+
+export {
+  deepCopy,
+  isCarStateFresh,
+  saveCarStateToLocalStorageForGoogleSheets,
+  getCarStateFromLocalStorageForGoogleSheets,
+  processDataFromExcel,
+  gExel,
+  initializeModels,
+}

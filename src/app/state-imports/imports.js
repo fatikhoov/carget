@@ -1,7 +1,68 @@
+const isExelLoadingFinish = false
+let Google_DB = {}
+
+let carData = {}
+
+let modelsArray = []
+const data4 = [
+  'Работаем за свои средства',
+  'Белая и прозрачная структура договоров',
+  'Официальные оплаты по счетам',
+  'Быстрый возврат средств клиенту в случае нарушения условий договора',
+  'Исключены таможенные риски',
+  'Большой парк электромобилей в наличии в Москве',
+  'Русификация авто и техническая поддержка',
+]
+const tableBody4 = data4.map((item) => [
+  {
+    text: item,
+    alignment: 'left',
+    fontSize: 10,
+    margin: [0, 0, 0, 8],
+  },
+])
+const data5 = [
+  {
+    img: 'https://carget.su/wp-content/uploads/2023/11/phone-icon.png',
+    contact: '+7 996 410-01-87',
+  },
+  {
+    img: 'https://carget.su/wp-content/uploads/2023/11/whatsapp-icon.png',
+    contact: '+7 996 410-01-87',
+  },
+  {
+    img: 'https://carget.su/wp-content/uploads/2023/11/telegram-icon.png',
+    contact: '+7 996 410-01-87',
+  },
+  {
+    img: 'https://carget.su/wp-content/uploads/2023/11/email-icon.png',
+    contact: 'carget@bk.ru',
+  },
+]
+
+let carState = {
+  model: [],
+  models: [],
+  options: {
+    color: [0, '', []],
+    wheels: [0, '', [], true],
+    interiorColor: [0, '', []],
+    runningBoards: [[], true],
+  },
+  delivery: {},
+  labFees: 0,
+  recyclingFee: 0,
+  carLocalization: 0,
+  marga: [],
+}
+
 let savedSlides = {}
 let originalColorOptions = {}
 let originalWheelsOptions = {}
 let originalInteriorColorOptions = {}
+
+// Создаем динамически divPriceModel для каждой модели
+const divPriceModels = {}
 let previousModel = null
 // ..... импорты ..... //
 
@@ -12,6 +73,10 @@ let indexDisk = 0
 let myArrowDiskImages
 let myDiskImage, mySalonImage
 let isUpdatingCarousel = false
+let updatedCarState
+let myPriceModels
+let modelNames, modelElements
+
 let arrayImagesForPDF = [
   'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
   'https://carget.su/wp-content/uploads/2023/11/carget-logo.jpg',
@@ -29,6 +94,15 @@ const arrayWrappers = [
   '.carget-interiorColor',
   '.carget-runningBoards',
 ]
+
+const cargetModels = document.querySelector(
+  '#carget-models .elementor-container'
+)
+
+const dopOptionsWrapper = document.querySelector(
+  '.dop-options-wrapper .elementor-widget-wrap'
+)
+const children = dopOptionsWrapper.children
 
 // ЦЕНА В ШАПКЕ
 const totalpriceElements = document.querySelectorAll('.header-totalprice')
@@ -82,45 +156,4 @@ const salonImage = document
 
 const loader = document.getElementById('header-loader')
 const cargetLoader = document.getElementById('carget-loader')
-
-const data4 = [
-  'Работаем за свои средства',
-  'Белая и прозрачная структура договоров',
-  'Официальные оплаты по счетам',
-  'Быстрый возврат средств клиенту в случае нарушения условий договора',
-  'Исключены таможенные риски',
-  'Большой парк электромобилей в наличии в Москве',
-  'Русификация авто и техническая поддержка',
-]
-const data5 = [
-  {
-    img: 'https://carget.su/wp-content/uploads/2023/11/phone-icon.png',
-    contact: '+7 996 410-01-87',
-  },
-  {
-    img: 'https://carget.su/wp-content/uploads/2023/11/whatsapp-icon.png',
-    contact: '+7 996 410-01-87',
-  },
-  {
-    img: 'https://carget.su/wp-content/uploads/2023/11/telegram-icon.png',
-    contact: '+7 996 410-01-87',
-  },
-  {
-    img: 'https://carget.su/wp-content/uploads/2023/11/email-icon.png',
-    contact: 'carget@bk.ru',
-  },
-]
-
-const tableBody4 = data4.map((item) => [
-  {
-    text: item,
-    alignment: 'left',
-    fontSize: 10,
-    margin: [0, 0, 0, 8],
-  },
-])
-// Первое  ОБНОВЛЕНИЕ САЙТА (КАРУСЕЛИ, АККОРДИОН, ШАПКА)
-const dopOptionsWrapper = document.querySelector(
-  '.dop-options-wrapper .elementor-widget-wrap'
-)
-const children = dopOptionsWrapper.children
+let selectedColor
