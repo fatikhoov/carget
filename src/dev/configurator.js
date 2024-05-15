@@ -387,7 +387,7 @@ async function updateOptions(selectedModel) {
     previousModel = selectedModel
 
     checkColor()
-    carState.options.wheels[3] === true ? checkWheels() : ''
+    checkWheels()
     checkSalon()
 
     //обновляю цвет кузова, заголовок и цену
@@ -407,12 +407,12 @@ async function updateOptions(selectedModel) {
       }, 1500)
     }
   } else {
-    carState.options.wheels[3] === true ? checkWheels() : ''
+    checkWheels()
     checkSalon()
   }
 
   //скрыть блок диски или оставить
-  if (diskDiametr.swiper.slides.length > 1) {
+  if (diskDiametr.swiper.slides.length > 1 && carState.options.wheels[3]) {
     setTimeout(() => {
       diskDiametr.swiper.slideTo(diskDiametr.swiper.params.slidesPerView)
         ? diskDiametr.swiper.slideTo(diskDiametr.swiper.params.slidesPerView)
@@ -423,7 +423,10 @@ async function updateOptions(selectedModel) {
         e.style.display = 'inline-flex'
       })
     }, 1500)
-  } else if (diskDiametr.swiper.slides.length <= 1) {
+  } else if (
+    diskDiametr.swiper.slides.length <= 1 &&
+    carState.options.wheels[3]
+  ) {
     setTimeout(() => {
       carState.options.wheels[1] = diskDiametr.querySelector(
         '.swiper-slide-active img'
@@ -455,8 +458,18 @@ async function updateOptions(selectedModel) {
       })
     }, 1500)
   }
+
   updateCaruselDisk(`${selectedColor}-0`)
   updateTitlePrice()
+
+  if (carState.options.wheels[3] === false) {
+    console.log('FALSE work')
+    document.querySelectorAll(arrayWrappers[1]).forEach((e) => {
+      e.style.display = 'none'
+    })
+  } else {
+    console.log('TRUE work')
+  }
 }
 //удаляем дубликаты, если один элемент
 function removeDuplicateSlides(carouselElement) {
