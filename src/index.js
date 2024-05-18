@@ -156,29 +156,31 @@ function hideLoader() {
   console.log('Загрузчик скрыт')
 }
 // Создаем элемент иконки автомобиля от Google Fonts
-const loaderCar = document.createElement('span')
+const loaderCar = document.createElement('div')
 loaderCar.id = 'loader-car'
-loaderCar.className = 'material-symbols-outlined'
+loaderCar.className = 'loaderCar-text'
 loaderCar.textContent = 'CARGET'
 
 // Создаем элемент текста загрузки
 const loaderText = document.createElement('div')
 loaderText.id = 'loader-text'
 loaderText.className = 'loader-text'
-loaderText.textContent = 'Подгружаем данные...'
+loaderText.textContent = 'На сайте ведутся технические работы!'
 
 // Добавляем элемент текста в загрузчик
 loader.appendChild(loaderCar)
 loader.appendChild(loaderText)
 
 // Тексты для смены
+/*
 const texts = [
   'Подгружаем данные',
   'Настраиваем конфигуратор',
   'Почти готово',
   'Загружаем настройки',
   'Финальные штрихи',
-]
+] 
+*/
 
 let textIndex = 0
 function changeLoaderText() {
@@ -187,7 +189,7 @@ function changeLoaderText() {
 }
 
 // Меняем текст каждые 2 секунды
-const textChangeInterval = setInterval(changeLoaderText, 2000)
+// const textChangeInterval = setInterval(changeLoaderText, 2000)
 
 const checkColor = (selectedModel) => {
   if (carState.options.color[2][0].models) {
@@ -2719,11 +2721,5 @@ function gExel() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Добавляем шрифт Google для иконок
-  const link = document.createElement('link')
-  link.rel = 'stylesheet'
-  link.href =
-    'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
-  document.head.appendChild(link)
-  getCarStateFromLocalStorageForGoogleSheets()
+    getCarStateFromLocalStorageForGoogleSheets()
 })
