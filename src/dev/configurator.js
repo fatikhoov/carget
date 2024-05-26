@@ -12,6 +12,16 @@ const customConsoleLog = async (
   await console.log(`%c${description}`, descriptionStyle, value)
 }
 
+/*
+customConsoleLog(
+  'ДО фильтра опции колес',
+  carState.options.wheels[2],
+  'background: brown; color: white;',
+  'font-weight: bold;'
+)
+*/
+let TEST3, TEST4
+
 let modelsArray = []
 const data4 = [
   'Работаем за свои средства',
@@ -73,7 +83,7 @@ let totalPrice = 0
 let indexDisk = 0
 let myArrowDiskImages
 let myDiskImage, mySalonImage
-let isUpdatingCarousel = false
+// let isUpdatingCarousel = false
 
 let modelNames, modelElements
 
@@ -190,39 +200,6 @@ function changeLoaderText() {
 const textChangeInterval = setInterval(changeLoaderText, 2000)
 
 let selectedColor
-let TEST3
-let TEST4
-
-const compareAndSlide = async () => {
-  let attempts = 0
-  const maxAttempts = 10
-
-  do {
-    carState.options.wheels[2].forEach((e) => {
-      if (
-        e.color === diskDiametr.querySelector('.swiper-slide-active img').alt
-      ) {
-        TEST3 = `${carState.options.color[1]}-${e.index}`
-      }
-    })
-
-    if (TEST3 !== TEST4) {
-      diskImage.swiper.enable()
-      setTimeout(() => {
-        diskImage.swiper.slideNext()
-        diskImage.swiper.disable()
-        attempts++
-        console.log('insert NEXT slides', TEST3, TEST4, TEST3 === TEST4)
-      }, 500)
-    }
-  } while (TEST3 !== TEST4 && attempts < maxAttempts)
-
-  if (TEST3 === TEST4) {
-    console.log(`Совпадение найдено: TEST3 = ${TEST3}, TEST4 = ${TEST4}`)
-  } else {
-    console.warn('Достигнут предел попыток, совпадение не найдено.')
-  }
-}
 
 const processSlidesColor = (
   carousel,
@@ -381,7 +358,7 @@ const checkWheels = (selectedModel) => {
 
   customConsoleLog(
     'ДО фильтра опции колес',
-    carState.options.wheels[2],
+    diskImage.swiper.slides.length,
     'background: brown; color: white;',
     'font-weight: bold;'
   )
@@ -401,13 +378,6 @@ const checkWheels = (selectedModel) => {
   diskImage.swiper.removeAllSlides()
   let addedDiskDiametrSlides = new Set()
 
-  customConsoleLog(
-    'ПОСЛЕ фильтра опции колес',
-    carState.options.wheels[2],
-    'background: brown; color: white;',
-    'font-weight: bold;'
-  )
-
   // Обрабатываем слайды для диаметра и изображений дисков
   carState.options.wheels[2].forEach((option) => {
     processSlidesWheelsSalon(
@@ -420,6 +390,13 @@ const checkWheels = (selectedModel) => {
       selectedColor
     )
   })
+
+  customConsoleLog(
+    'ПОСЛЕ фильтра опции колес',
+    diskImage.swiper.slides.length,
+    'background: brown; color: white;',
+    'font-weight: bold;'
+  )
   // Проверяем и удаляем дубликаты слайдов
   areAllSlidesWithSameAlt(diskDiametr) ? removeDuplicateSlides(diskDiametr) : ''
   // Обновляем карусели
@@ -428,17 +405,26 @@ const checkWheels = (selectedModel) => {
 
   // Сценарии для карусели
   if (diskDiametr.swiper.slides.length > 1) {
-    console.log('СЦЕНАРИЙ diskDiametr > 1')
+    customConsoleLog(
+      'diskDiametr > 1',
+      diskDiametr.swiper.slides.length,
+      'background: yellow; color: black;',
+      'font-weight: bold;'
+    )
     setTimeout(() => {
-      diskDiametr.swiper.slideNext()
-      diskDiametr.swiper.params.centeredSlides = true
-      diskDiametr.swiper.params.slideToClickedSlide = true
+      // diskDiametr.swiper.params.centeredSlides = true
+      // diskDiametr.swiper.params.slideToClickedSlide = true
       diskDiametr.querySelectorAll('.elementor-swiper-button').forEach((e) => {
         e.style.display = 'inline-flex'
       })
     }, 1500)
   } else if (diskDiametr.swiper.slides.length <= 1) {
-    console.log('СЦЕНАРИЙ diskDiametr <= 1')
+    customConsoleLog(
+      'diskDiametr <= 1',
+      diskDiametr.swiper.slides.length,
+      'background: yellow; color: black;',
+      'font-weight: bold;'
+    )
     // Если один или меньше слайдов, скрываем кнопки переключения
     setTimeout(() => {
       carState.options.wheels[1] = diskDiametr.querySelector(
@@ -450,9 +436,15 @@ const checkWheels = (selectedModel) => {
     }, 1500)
   } else {
     console.log('нет такого СЦЕНАРИЯ для дисков')
+    customConsoleLog(
+      'нет такого СЦЕНАРИЯ для дисков',
+      diskDiametr.swiper.slides.length,
+      'background: yellow; color: black;',
+      'font-weight: bold;'
+    )
   }
 
-  updateCaruselDisk(`${carState.options.color[1]}-0`, 'checkWheels')
+  updateCarouselDisk(`${carState.options.color[1]}-0`, 'checkWheels')
 
   return true
 }
@@ -695,68 +687,60 @@ async function saveCurrencyRatesToLocalStorage(data) {
 }
 
 // КАРУСЕЛИ НА НУЖНЫЙ СЛАЙД ОБНОВЛЕНИЯ
-async function updateCaruselDisk(dc, where) {
+async function updateCarouselDisk(dc, where) {
+  // Включаем карусель diskImage и очищаем все слайды
+  diskImage.swiper.removeAllSlides()
+
+  const consoleValue = { dc, where }
+  customConsoleLog(
+    'updateCarouselDisk',
+    consoleValue,
+    'background: blue; color: white;',
+    'font-weight: bold;'
+  )
+
+  const color = dc.split('-')[0]
+  const matchingIndexes = []
+
+  carState.options.wheels[2].forEach((option) => {
+    // Проверяем, что у опции есть нужный цвет или 'All'
+    if (option.colors.includes(color) || option.colors.includes('All')) {
+      matchingIndexes.push(option.index) // Добавляем индекс в массив
+    }
+  })
+  console.log('Matching indexes:', matchingIndexes)
+
+  const exactMatchSlides = myArrowDiskImages.filter((slide) => {
+    // Проверяем условия фильтрации для каждого слайда
+    return matchingIndexes.some(
+      (index) => slide.querySelector('img').alt === `${color}-${index}`
+    )
+  })
+
+  console.log('Filtered slides:', exactMatchSlides)
+
+  exactMatchSlides.forEach((slide) => {
+    diskImage.swiper.appendSlide(slide)
+  })
+
+  diskImage.swiper.update()
+
+  // Обновляем состояние carState
+  carState.options.wheels[0] = indexOption('wheels', 0, 'index').price
+  carState.options.wheels[1] = indexOption('wheels', 0, 'index').color
+
   if (diskDiametr.swiper) {
-    console.log('updateCaruselDisk', dc, where)
-    diskImage.swiper.enable()
-    diskImage.swiper.removeAllSlides()
+    diskDiametr.swiper.slideTo(diskDiametr.swiper.params.slidesPerView, 400)
 
-    // Функция, которая находит видимый слайд с определенным цветом (игнорируя индекс)
-    function findVisibleSlides(color) {
-      const visibleSlides = myArrowDiskImages.filter((slide) => {
-        // Проверяем, что слайд не имеет классов "swiper-slide swiper-slide-duplicate swiper-slide-prev"
-        return (
-          !slide.classList.contains('swiper-slide-duplicate') &&
-          !slide.classList.contains('swiper-slide-prev')
-        )
-      })
-
-      return visibleSlides.filter((slide) => {
-        const slideAlt = slide.querySelector('.swiper-slide-image').alt
-        // Проверяем соответствие цвета без учета индекса в альте слайда
-        return slideAlt.startsWith(color + '-')
-      })
-    }
-
-    // Получаем цвет из аргумента dc (игнорируем индекс)
-    const color = dc.split('-')[0]
-    // Поиск видимых слайдов с цветом исходного и цветом противоположного
-    const exactMatchSlides = findVisibleSlides(color)
-    exactMatchSlides.forEach((slide) => {
-      diskImage.swiper.appendSlide(slide)
-    })
-
-    // Обновляем карусель
-    diskImage.swiper.update()
-
-    // дополнительные операции...
-    carState.options.wheels[0] = indexOption('wheels', 0, 'index').price
-    carState.options.wheels[1] = indexOption('wheels', 0, 'index').color
-    // Проверяем существование объекта diskDiametr и его свойства swiper
-    if (diskDiametr) {
-      // Вызываем метод slideTo для объекта diskDiametr.swiper
-      diskDiametr.swiper.slideTo(diskDiametr.swiper.params.slidesPerView, 400)
-      diskDiametr.swiper.update()
-    }
-
-    // Проверяем существование объекта diskImage и его свойства swiper
-    if (diskImage) {
-      // Вызываем метод slideTo и update для объекта diskImage.swiper
-      diskImage.swiper.slideTo(0, 0)
-      diskImage.swiper.update()
-    }
-
-    diskDiametr.querySelectorAll('.elementor-swiper-button').forEach((e) => {
-      if (diskDiametr.swiper.slides.length <= 1) {
-        e.style.display = 'none'
-      } else {
-        e.style.display = 'inline-flex'
-      }
-    })
-    diskImage.swiper.disable()
-
-    updateTitlePrice('updateCaruselDisk')
+    diskDiametr.swiper.update()
   }
+
+  diskDiametr.querySelectorAll('.elementor-swiper-button').forEach((button) => {
+    button.style.display =
+      diskDiametr.swiper.slides.length <= 1 ? 'none' : 'inline-flex'
+  })
+
+  updateTitlePrice('updateCarouselDisk')
 }
 
 function findSlideIndexByAlt(slider, altAttribute) {
@@ -1214,24 +1198,6 @@ function updateButtonState(carState) {
         elementorButton ? (elementorButton.style.backgroundColor = '#fff') : ''
         buttonTextElement.style.color = '#000'
         updateOptions(modelName)
-        carState.options.wheels[2].forEach((e) => {
-          if (
-            e.color ===
-            diskDiametr.querySelector('.swiper-slide-active img').alt
-          ) {
-            TEST3 = `${carState.options.color[1]}-${e.index}`
-          }
-        })
-        TEST4 = diskImage.querySelector('.swiper-slide-active img').alt
-        console.log(
-          'TEST3 TEST4 in updateOptions',
-          TEST3,
-          TEST4,
-          TEST3 === TEST4
-        )
-        if (TEST3 !== TEST4) {
-          compareAndSlide()
-        }
       } else {
         // Если не выбрано, восстановите стандартные стили
         button.style.backgroundColor = '#DB2424'
@@ -1598,7 +1564,7 @@ const updateWebsite = () => {
   if (carState.options.wheels[3] === true && diskDiametr.swiper) {
     myArrowDiskImages = saveAllSlides(diskImage.swiper)
 
-    updateCaruselDisk(`${carState.options.color[1]}-0`, 'updateWebsite')
+    // updateCarouselDisk(`${carState.options.color[1]}-0`, 'updateWebsite')
     // Другие операции с дисками или что угодно, что нужно выполнить, если wheels[3] === true
   } else if (carState.options.wheels[3] === false || !diskDiametr.swiper) {
     myArrowDiskImages = colorImageCarousel.querySelector('.swiper-slide-active')
@@ -2039,14 +2005,14 @@ const handleColorCarouselChange = async (e) => {
   colorCarousel.swiper.params.slideToClickedSlide = true
   colorCarousel.swiper.update()
 
-  if (isUpdatingCarousel) {
+  /*if (isUpdatingCarousel) {
     return
-  }
+  }*/
 
   try {
     colorImageCarousel.swiper.enable()
 
-    isUpdatingCarousel = true
+    // isUpdatingCarousel = true
 
     let currentColor, currentPrice
     const indexOffset = carState.options.color[2].length <= 1 ? 0 : e.realIndex
@@ -2069,13 +2035,10 @@ const handleColorCarouselChange = async (e) => {
 
     carState.options.color[0] = currentPrice
     carState.options.color[1] = currentColor
-    if (carState.options.wheels[3]) {
-      updateCaruselDisk(`${currentColor}-0`, 'handleColorCarouselChange')
-    }
 
     updateOptions(carState.model[1])
 
-    isUpdatingCarousel = false
+    // isUpdatingCarousel = false
 
     colorCarousel
       .querySelectorAll('.elementor-swiper-button')
@@ -2090,49 +2053,7 @@ const handleColorCarouselChange = async (e) => {
       'Ошибка в обработчике события handleColorCarouselChange:',
       error
     )
-    isUpdatingCarousel = false
-  }
-}
-
-const handleColorImageCarouselChange = async (e) => {
-  colorCarousel.swiper.params.slideToClickedSlide = true
-  colorCarousel.swiper.update()
-
-  // Проверяем, не выполняется ли уже обновление карусели
-  if (isUpdatingCarousel) {
-    return
-  }
-
-  try {
-    // Устанавливаем флаг блокировки
-    isUpdatingCarousel = true
-    carState.options.color[0] = carState.options.color[2][e.realIndex].price
-    carState.options.color[1] = indexColor(e.realIndex, 'index')
-
-    if (carState.options.wheels[3] === true) {
-      const color =
-        carState.options.color[2].length <= 1
-          ? await indexOption('color', 0, 'index').color
-          : await indexOption('color', e.realIndex, 'index').color
-      updateCaruselDisk(`${color}-0`, 'handleColorImageCarouselChange')
-    } else if (carState.options.wheels[3] === false) {
-      setTimeout(() => {
-        updateTitlePrice('handleColorImageCarouselChange')
-      }, 200)
-    }
-
-    colorCarousel.swiper.slideTo(
-      e.realIndex + colorCarousel.swiper.params.slidesPerView,
-      500
-    )
-  } catch (error) {
-    console.error(
-      'Ошибка в обработчике события handleColorImageCarouselChange:',
-      error
-    )
-  } finally {
-    // Сбрасываем флаг после завершения обновления карусели
-    isUpdatingCarousel = false
+    // isUpdatingCarousel = false
   }
 }
 
@@ -2187,14 +2108,7 @@ async function loadConfigutation() {
     if (colorCarousel && colorCarousel.swiper) {
       colorCarousel.swiper.on('activeIndexChange', handleColorCarouselChange)
     }
-    /*
-    if (colorImageCarousel && colorImageCarousel.swiper) {
-      colorImageCarousel.swiper.on(
-        'activeIndexChange',
-        handleColorImageCarouselChange
-      )
-    } 
-    */
+
     // Проверка на существование colorSalon.swiper
     if (colorSalon && colorSalon.swiper) {
       // Устанавливаем значение centeredSlides
@@ -2206,14 +2120,14 @@ async function loadConfigutation() {
 
       colorSalon.swiper.on('activeIndexChange', async (e) => {
         // Проверьте, не выполняется ли уже обновление карусели
-        if (isUpdatingCarousel) {
+        /*  if (isUpdatingCarousel) {
           return
-        }
+        }*/
 
         // Установите флаг блокировки
         try {
           salonImage.swiper.enable()
-          isUpdatingCarousel = true
+          // isUpdatingCarousel = true
 
           const currentColor = indexOption(
             'interiorColor',
@@ -2252,7 +2166,7 @@ async function loadConfigutation() {
             salonImage.swiper.slideTo(e.realIndex + 1, 400)
           }
           updateTitlePrice('colorSalon.swiper.on')
-          isUpdatingCarousel = false
+          // isUpdatingCarousel = false
           colorSalon
             .querySelectorAll('.elementor-swiper-button')
             .forEach((e) => {
@@ -2265,59 +2179,11 @@ async function loadConfigutation() {
           salonImage.swiper.disable()
         } catch (error) {
           console.error('Error in diskDiametr activeIndexChange event:', error)
-          isUpdatingCarousel = false
+          // isUpdatingCarousel = false
         }
       })
     }
-    if (salonImage && salonImage.swiper) {
-      salonImage.swiper.on('activeIndexChange', async (e) => {
-        // Проверьте, не выполняется ли уже обновление карусели
-        if (isUpdatingCarousel) {
-          return
-        }
 
-        try {
-          isUpdatingCarousel = true
-
-          const currentColor = indexOption(
-            'interiorColor',
-            e.realIndex,
-            'index'
-          )
-            ? indexOption('interiorColor', e.realIndex, 'index').color
-            : ''
-          const currentPrice = indexOption(
-            'interiorColor',
-            e.realIndex,
-            'index'
-          )
-            ? indexOption('interiorColor', e.realIndex, 'index').price
-            : ''
-          const activeSlideAlt = colorSalon.querySelector(
-            '.swiper-slide-active img'
-          )
-            ? colorSalon.querySelector('.swiper-slide-active img').alt
-            : ''
-
-          const slideIndex = findSlideIndexByAlt(colorSalon, activeSlideAlt)
-
-          if (slideIndex !== -1) {
-            carState.options.interiorColor[0] = currentPrice
-            carState.options.interiorColor[1] = currentColor
-            colorSalon.swiper.slideTo(
-              e.realIndex + colorSalon.swiper.params.slidesPerView,
-              400
-            )
-            updateTitlePrice('salonImage.swiper.on')
-          }
-
-          isUpdatingCarousel = false
-        } catch (error) {
-          console.error('Error in diskImage activeIndexChange event:', error)
-          isUpdatingCarousel = false
-        }
-      })
-    }
     // Проверка на существование diskDiametr.swiper
     if (diskDiametr && diskDiametr.swiper) {
       diskDiametr.swiper.params.centeredSlides = true
@@ -2327,19 +2193,10 @@ async function loadConfigutation() {
       diskDiametr.swiper.update()
 
       diskDiametr.swiper.on('activeIndexChange', async (e) => {
-        if (isUpdatingCarousel) {
-          return
-        }
-
+        diskImage.swiper.enable()
         try {
-          isUpdatingCarousel = true
-
-          const currentColor = indexOption('wheels', e.realIndex, 'index')
-            ? indexOption('wheels', e.realIndex, 'index').color
-            : ''
-          const currentPrice = indexOption('wheels', e.realIndex, 'index')
-            ? indexOption('wheels', e.realIndex, 'index').price
-            : ''
+          const currentColor = indexOption('wheels', e.realIndex, 'index').color
+          const currentPrice = indexOption('wheels', e.realIndex, 'index').price
           let activeSlideAlt = null
           // Проверяем существование объекта diskDiametr и вызываем метод querySelector
           if (diskDiametr) {
@@ -2359,18 +2216,12 @@ async function loadConfigutation() {
           if (slideIndex !== -1) {
             carState.options.wheels[0] = currentPrice
             carState.options.wheels[1] = currentColor
-            diskImage.swiper.enable()
             diskImage.swiper.slideTo(e.realIndex + 1, 400)
-              ? diskImage.swiper.slideTo(e.realIndex + 1, 400)
-              : diskImage.swiper.slideNext()
-            diskImage.swiper.disable()
             updateTitlePrice('diskDiametr.swiper.on')
+            diskImage.swiper.disable()
           }
-
-          isUpdatingCarousel = false
         } catch (error) {
           console.error('Error in diskDiametr activeIndexChange event:', error)
-          isUpdatingCarousel = false
         }
       })
     }
