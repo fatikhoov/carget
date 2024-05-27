@@ -766,8 +766,7 @@ async function updateCarouselDisk(dc, where) {
 
   updateTitlePrice('updateCarouselDisk')
 }*/
-// КАРУСЕЛИ НА НУЖНЫЙ СЛАЙД ОБНОВЛЕНИЯ
-// КАРУСЕЛИ НА НУЖНЫЙ СЛАЙД ОБНОВЛЕНИЯ
+// КАРУСЕЛИ НА НУЖНЫЙ СЛАЙД ОБНОВЛЕНИЯ 
 async function updateCarouselDisk(dc, where) {
   // Включаем карусель diskImage и очищаем все слайды
   diskImage.swiper.removeAllSlides()
@@ -780,7 +779,8 @@ async function updateCarouselDisk(dc, where) {
     'font-weight: bold;'
   )
 
-  const color = dc.split('-')[0]
+  // const color = dc.split('-')[0]
+  const color = dc.substring(0, dc.lastIndexOf('-'))
   const matchingIndexes = []
 
   if (carState.options.wheels[2] && diskDiametr.swiper) {
