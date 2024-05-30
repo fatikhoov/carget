@@ -430,7 +430,7 @@ header .elementor-container {
 
 .check-list-row-price-descr {
   flex-direction: column;
-  width: 66.66%;
+  width: 100%;
   text-align: left;
   font-size: 12px;
 }

@@ -67,6 +67,10 @@ let carState = {
   marga: [],
 }
 
+let updatedCarState
+let myPriceModels
+const priceInRub = {}
+const pricecustomInRub = {}
 let savedSlides = {}
 let originalColorOptions = {}
 let originalWheelsOptions = {}
@@ -161,6 +165,52 @@ const salonImage = document
   .getElementById('carget-acordion-salon-color')
   .querySelector('.swiper')
 
+// Определим функцию для добавления нового элемента
+function addNewElementInCheck(customs) {
+  try {
+    // Найдем элемент по id
+    var wrapperBlock = document.getElementById('check-list-wrapper-block')
+    if (!wrapperBlock)
+      throw new Error("Элемент с id 'check-list-wrapper-block' не найден.")
+
+    // Проверим и удалим существующий элемент, если он уже добавлен
+    var existingElement = document.querySelector(
+      '.check-list-items.new-element-custom'
+    )
+    if (existingElement) {
+      wrapperBlock.removeChild(existingElement)
+    }
+
+    // Создадим новый div элемент с классом 'check-list-items' и 'new-element'
+    var newCheckListItem = document.createElement('div')
+    newCheckListItem.className = 'check-list-items new-element-custom'
+
+    // Используем данные из объекта customs для создания внутренней структуры HTML
+    newCheckListItem.innerHTML = `
+          <div class="check-list-row">
+              <span class="check-list-item">${customs.title}</span>
+              <span class="check-list-item check-new-item">${customs.description}</span>
+              <span class="check-list-item check-new-item-price">${customs.price}</span>
+          </div>
+      `
+
+    // Найдем элемент "Суммарная скидка"
+    var discountElement = document.getElementById('check-list-items-discount')
+    if (!discountElement)
+      throw new Error("Элемент с id 'check-list-items-discount' не найден.")
+
+    // Вставим новый элемент перед элементом "Суммарная скидка"
+    wrapperBlock.insertBefore(newCheckListItem, discountElement)
+
+    console.log('Новый элемент успешно добавлен.')
+  } catch (error) {
+    console.error(
+      'Произошла ошибка при добавлении нового элемента:',
+      error.message
+    )
+  }
+}
+
 const loader = document.getElementById('header-loader')
 const cargetLoader = document.getElementById('carget-loader')
 function showLoader() {
@@ -249,27 +299,33 @@ const processSlidesWheelsSalon = (
   selectedModel,
   selectedColor
 ) => {
+  console.log('processSlidesWheelsSalon', option)
   // Проверяем, соответствует ли опция выбранной модели и цвету
   if (
     (option.models.includes(selectedModel) || option.models.includes('All')) &&
     (option.colors.includes(selectedColor) || option.colors.includes('All'))
   ) {
-    // Проверяем, был ли слайд уже добавлен
-    const isSlideAlreadyAdded = Array.from(addedSlides).some((slide) =>
-      slide.innerHTML.includes(`alt="${option.color}"`)
-    )
+    console.log('processSlidesWheelsSalon IF 1')
 
+    // Проверяем, был ли слайд уже добавлен
+    const isSlideAlreadyAdded = Array.from(addedSlides).some(
+      (slide) => slide.childNodes[0].childNodes[0].alt === option.color
+    )
     // Если слайд не был добавлен, фильтруем и добавляем уникальные слайды
     if (!isSlideAlreadyAdded) {
-      const filteredSlides = savedSlides.filter((slide) =>
-        slide.innerHTML.includes(`alt="${option.color}"`)
+      /* const filteredSlides = savedSlides.filter((slide) =>
+          slide.innerHTML.includes(`alt="${option.color}"`)
+        ) */
+      const filteredSlides = savedSlides.filter(
+        (slide) => slide.childNodes[0].childNodes[0].alt === option.color
       )
+      console.log('work WORK', filteredSlides)
 
       // Для carousels, которые содержат изображения, удаляем дублирующие слайды по alt
       if (attribute) {
         const uniqueAlts = {}
         filteredSlides.forEach((slide) => {
-          const alt = slide.querySelector(attribute).getAttribute('alt')
+          const alt = slide.childNodes[0].childNodes[0].alt
           if (!(alt in uniqueAlts)) {
             uniqueAlts[alt] = true
           } else {
@@ -283,6 +339,8 @@ const processSlidesWheelsSalon = (
         addedSlides.add(slide)
       })
     }
+  } else {
+    console.log('processSlidesWheelsSalon ELSE 2')
   }
 }
 
@@ -555,6 +613,7 @@ async function updateOptions(selectedModel, where) {
       if (isCheckSalon && colorSalon.swiper) {
         await checkSalon(selectedModel)
       }
+      console.log('carState.options.wheels[1]', carState.options.wheels[1])
       await updateTitlePrice('updateOptions')
     } catch (error) {
       console.error('Ошибка при выполнении проверок:', error)
@@ -578,6 +637,15 @@ async function updateOptions(selectedModel, where) {
         isCheckWheels: wheelsCheckNeeded,
         isCheckSalon: salonCheckNeeded,
       })
+
+      const customs = {
+        title: '*Стоимость таможни РФ',
+        description: '—',
+        price: `${numberWithSpaces(
+          roundNumberToNChars(pricecustomInRub[selectedModel], 4)
+        )} руб.`,
+      }
+      addNewElementInCheck(customs)
     }
     // -------------------- ЦВЕТ КУЗОВА ИЗМЕНИЛСЯ
     else if (color[1] && color[1] !== previousColor) {
@@ -1008,12 +1076,6 @@ const updateTitlePrice = async (where) => {
       // Копируем src изображения перед обновлением массива
       await updateImages(myDiskImage)
     }
-    customConsoleLog(
-      'wheels[3] === true',
-      '',
-      'background: brown; color: white;',
-      'font-weight: bold;'
-    )
   } else if (carState.options.wheels[3] === false && colorImageCarousel) {
     myDiskImage = colorImageCarousel.querySelector('.swiper-slide-active')
     if (myDiskImage) {
@@ -1345,9 +1407,6 @@ function updateButtonState(carState) {
   })
 }
 
-let updatedCarState
-let myPriceModels
-
 function convertCarState(carState) {
   const storedData = localStorage.getItem('currencyRates')
   const currencyRates = JSON.parse(storedData)
@@ -1355,10 +1414,13 @@ function convertCarState(carState) {
   const usdToRubExchangeRate = currencyRates.rates.USD
   const cnyToRubExchangeRate = currencyRates.rates.CNY
   // Конвертация МОДЕЛЕЙ в рубли
-  const priceInRub = {}
+
   modelNames.forEach((modelName) => {
     const modelPrice = carState.models.find((model) => model[modelName])
+
+    const customPrice = modelPrice ? modelPrice[modelName].custom : 0 // Получаем таможенную стоимость модели
     const modelPriceCNY = modelPrice ? modelPrice[modelName].price : 0
+    pricecustomInRub[modelName] = customPrice * cnyToRubExchangeRate
     priceInRub[modelName] = modelPriceCNY * cnyToRubExchangeRate
   })
 
@@ -1368,7 +1430,12 @@ function convertCarState(carState) {
     models: carState.models.map((model) => {
       const modelName = Object.keys(model)[0]
       const priceInRub = model[modelName].price * cnyToRubExchangeRate
-      return { [modelName]: priceInRub }
+      const customInRub = model[modelName].custom * cnyToRubExchangeRate
+      console.log(
+        `${model} Model: ${modelName}, Price in RUB: ${priceInRub}, Custom in RUB: ${customInRub}`
+      )
+
+      return { [modelName]: { price: priceInRub, custom: customInRub } }
     }),
     delivery: {
       ...carState.delivery,
@@ -1383,7 +1450,7 @@ function convertCarState(carState) {
     recyclingFee: carState.recyclingFee,
     carLocalization: carState.carLocalization,
   }
-
+  console.log('updatedCarState', updatedCarState)
   return updatedCarState
 }
 
@@ -1406,10 +1473,17 @@ function sumCarModelsPrices(carState) {
   // Суммирование всех цен
   const totalPrices = modelNames.map((modelName) => {
     const modelPriceCNY =
-      models.find((model) => model[modelName])?.[modelName] || 0
+      models.find((model) => model[modelName])?.[modelName].price || 0
+    const customCNY =
+      models.find((model) => model[modelName])?.[modelName].custom || 0
 
+    console.log(
+      'MODEL',
+      models.find((model) => model[modelName])
+    )
     const total =
       modelPriceCNY +
+      customCNY +
       fromTurgartToBishkek +
       customs +
       otherExpenses +
@@ -1528,6 +1602,7 @@ const totalSaleCheck = () => {
   saleAll = totalDiscount
   return totalDiscount
 }
+
 // ОБНОВЛЕНИЕ ЧЕКА
 async function updateCheck() {
   totalSaleCheck() // Предполагается, что totalSaleCheck() возвращает числовое значение скидки
@@ -1717,6 +1792,17 @@ const updateWebsite = () => {
   innerPriceTitleModels()
   updateTitlePrice('updateWebsite')
   myPDF()
+
+  document
+    .querySelectorAll('.check-list-item-price-descr')
+    .forEach((e, index) => {
+      if (index !== 0) {
+        e.innerHTML = ''
+      } else if (index === 0) {
+        e.innerHTML =
+          '*Стоимость таможни может меняться в зависимости от выбранной комплектации, доп. опций и оценки таможни РФ'
+      }
+    })
 }
 
 // Функция для вычисления суммы с процентом без десятых
@@ -2224,6 +2310,7 @@ async function loadConfigutation() {
     updateDopOptions()
     fetchCurrencyRates().then((data) => {
       updatedCarState = convertCarState(carState)
+      console.log('updatedCarState', updatedCarState)
       if (updatedCarState) {
         myPriceModels = sumCarModelsPrices(updatedCarState)
       }
@@ -2474,25 +2561,34 @@ function processDataFromExcel(data) {
       if (modelsData[i]) {
         let modelInfo = modelsData[i].split('#')
         let modelName = modelInfo[0].trim()
-        let priceAndSale = modelInfo[1].match(/\d+/g)
-        let show = /"show"\s*:\s*(\w+)/.exec(modelInfo[1])
-        if (show) {
-          show = show[1].trim().toLowerCase() === 'true'
-        } else {
-          show = false
-        }
+        // Извлекаем параметры из строки
+        let priceMatch = modelInfo[1].match(/"price"\s*:\s*(\d+)/)
+        let customMatch = modelInfo[1].match(/"custom"\s*:\s*(\d+)/)
+        let saleMatch = modelInfo[1].match(/"sale"\s*:\s*(\d+)/)
+        let showMatch = modelInfo[1].match(/"show"\s*:\s*(\w+)/)
+
+        // Преобразуем значения в нужные типы
+        let price = priceMatch ? parseInt(priceMatch[1]) : 0
+        let custom = customMatch ? parseInt(customMatch[1]) : 0
+        let sale = saleMatch ? parseInt(saleMatch[1]) : 0
+        let show = showMatch
+          ? showMatch[1].trim().toLowerCase() === 'true'
+          : false
+
         // Проверяем, показывать ли модель
         if (show) {
           let modelObject = {}
           modelObject[modelName] = {
-            price: parseInt(priceAndSale[0]),
-            sale: parseInt(priceAndSale[1]),
+            price: price,
+            custom: custom,
+            sale: sale,
             show: show,
           }
           modelsArray.push(modelObject)
         }
       }
     }
+
     carState.models = modelsArray
     carState.model[0] = document.title
     carState.model[1] = Object.keys(carState.models[0])[0]
