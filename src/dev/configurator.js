@@ -189,7 +189,7 @@ function addNewElementInCheck(customs) {
     newCheckListItem.innerHTML = `
           <div class="check-list-row">
               <span class="check-list-item">${customs.title}</span>
-              <span class="check-list-item check-new-item">${customs.description}</span>
+              <span class="check-list-item check-new-item"></span>
               <span class="check-list-item check-new-item-price">${customs.price}</span>
           </div>
       `
@@ -203,6 +203,12 @@ function addNewElementInCheck(customs) {
     wrapperBlock.insertBefore(newCheckListItem, discountElement)
 
     console.log('Новый элемент успешно добавлен.')
+
+    document
+      .querySelectorAll('.new-element-custom .check-list-item')
+      .forEach((e) => {
+        e.style.borderBottom = '0'
+      })
   } catch (error) {
     console.error(
       'Произошла ошибка при добавлении нового элемента:',
@@ -424,12 +430,7 @@ const checkWheels = (selectedModel) => {
         e.style.display = 'block'
       }
     })
-    customConsoleLog(
-      'ДО фильтра опции колес',
-      diskImage.swiper.slides.length,
-      'background: brown; color: white;',
-      'font-weight: bold;'
-    )
+
     // Работа с базой - Копируем исходные опции колес
     carState.options.wheels[2] = [...originalWheelsOptions]
     // Фильтруем опции колес по выбранной модели и цвету
@@ -460,13 +461,6 @@ const checkWheels = (selectedModel) => {
         selectedColor
       )
     })
-
-    customConsoleLog(
-      'ПОСЛЕ фильтра опции колес',
-      diskImage.swiper.slides.length,
-      'background: brown; color: white;',
-      'font-weight: bold;'
-    )
     // Проверяем и удаляем дубликаты слайдов
     areAllSlidesWithSameAlt(diskDiametr)
       ? removeDuplicateSlides(diskDiametr)
@@ -503,7 +497,9 @@ const checkWheels = (selectedModel) => {
       setTimeout(() => {
         carState.options.wheels[1] = diskDiametr.querySelector(
           '.swiper-slide-active img'
-        ).alt
+        )
+          ? diskDiametr.querySelector('.swiper-slide-active img').alt
+          : ''
         diskDiametr
           .querySelectorAll('.elementor-swiper-button')
           .forEach((e) => {
