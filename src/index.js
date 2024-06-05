@@ -1849,6 +1849,12 @@ const myPDF = async () => {
         }
       : '',
     {
+      label: '*СТОИМОСТЬ ТАМОЖНИ:',
+      value: `${numberWithSpaces(
+        roundNumberToNChars(pricecustomInRub[carState.model[1]], 4)
+      )} руб.`,
+    },
+    {
       label:
         saleAll && saleAll !== 0
           ? 'ИТОГОВАЯ СТОИМОСТЬ\nс учетом скидки:'
@@ -1856,18 +1862,12 @@ const myPDF = async () => {
       value: `${numberWithSpaces(totalCarPrice)} руб.`,
     },
     {
-      label: 'СТОИМОСТЬ Б/Н БЕЗ НДС:',
+      label: 'СТОИМОСТЬ С НДС:',
       value: `${numberWithSpaces(
-        calculateWithPercentage(totalCarPrice, carState.marga) + 40000
+        calculateWithPercentage(totalCarPrice, carState.marga)
       )} руб.`,
     },
-    {
-      label: 'СТОИМОСТЬ Б/Н С НДС 20%:',
-      value: `${numberWithSpaces(
-        calculateWithPercentage(totalCarPrice, carState.marga) + 40000
-      )} руб.`,
-    },
-    { label: 'СРОК ПОСТАВКИ:', value: '45-60 ДНЕЙ' },
+    { label: 'СРОК ПОСТАВКИ:', value: '30-60 ДНЕЙ' },
   ]
 
   // Ваш массив данных
@@ -2080,7 +2080,7 @@ const myPDF = async () => {
                     margin: [0, 26, 0, 0],
                   },
                   {
-                    text: '*Стоимость растаможенного автомобиля по ставкам ЕАЭС под ключ в Москве, включающая все возможные затраты.',
+                    text: '*Стоимость таможни может меняться в зависимости от выбранной комплектации, доп. опций и оценки таможни РФ.',
                     border: [0, 0, 0, 0],
                     fontSize: 8,
                     margin: [-132, 16, 16, 0],
