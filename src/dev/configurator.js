@@ -202,8 +202,6 @@ function addNewElementInCheck(customs) {
     // Вставим новый элемент перед элементом "Суммарная скидка"
     wrapperBlock.insertBefore(newCheckListItem, discountElement)
 
-    console.log('Новый элемент успешно добавлен.')
-
     document
       .querySelectorAll('.new-element-custom .check-list-item')
       .forEach((e) => {
@@ -305,14 +303,11 @@ const processSlidesWheelsSalon = (
   selectedModel,
   selectedColor
 ) => {
-  console.log('processSlidesWheelsSalon', option)
   // Проверяем, соответствует ли опция выбранной модели и цвету
   if (
     (option.models.includes(selectedModel) || option.models.includes('All')) &&
     (option.colors.includes(selectedColor) || option.colors.includes('All'))
   ) {
-    console.log('processSlidesWheelsSalon IF 1')
-
     // Проверяем, был ли слайд уже добавлен
     const isSlideAlreadyAdded = Array.from(addedSlides).some(
       (slide) => slide.childNodes[0].childNodes[0].alt === option.color
@@ -325,7 +320,6 @@ const processSlidesWheelsSalon = (
       const filteredSlides = savedSlides.filter(
         (slide) => slide.childNodes[0].childNodes[0].alt === option.color
       )
-      console.log('work WORK', filteredSlides)
 
       // Для carousels, которые содержат изображения, удаляем дублирующие слайды по alt
       if (attribute) {
@@ -346,7 +340,6 @@ const processSlidesWheelsSalon = (
       })
     }
   } else {
-    console.log('processSlidesWheelsSalon ELSE 2')
   }
 }
 
@@ -609,7 +602,6 @@ async function updateOptions(selectedModel, where) {
       if (isCheckSalon && colorSalon.swiper) {
         await checkSalon(selectedModel)
       }
-      console.log('carState.options.wheels[1]', carState.options.wheels[1])
       await updateTitlePrice('updateOptions')
     } catch (error) {
       console.error('Ошибка при выполнении проверок:', error)
@@ -638,7 +630,11 @@ async function updateOptions(selectedModel, where) {
         title: '*Стоимость таможни РФ',
         description: '—',
         price: `${numberWithSpaces(
-          roundNumberToNChars(pricecustomInRub[selectedModel], 4)
+          roundNumberToNChars(
+            pricecustomInRub[selectedModel],
+            4,
+            'updateOptions'
+          )
         )} руб.`,
       }
       addNewElementInCheck(customs)
@@ -729,8 +725,39 @@ function areAllSlidesWithSameAlt(carousel) {
   return true
 }
 
-// API курсы валют
+// плюс процент с округлением
+function calculateWithPercentage(sum, percentage) {
+  return roundNumberToNChars(
+    Math.ceil(sum * (1 + percentage / 100)),
+    4,
+    'calculateWithPercentage'
+  )
+}
+// пробелы
+function numberWithSpaces(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
+// округление
+function roundNumberToNChars(number, n, where) {
+  number = Math.ceil(number)
+  if (typeof number !== 'number' || !Number.isInteger(number) || number < 0) {
+    throw new Error('number должно быть положительным целым числом', where)
+  }
 
+  if (typeof n !== 'number' || !Number.isInteger(n) || n < 1) {
+    throw new Error(
+      'n должно быть положительным целым числом больше или равным 1',
+      where
+    )
+  }
+
+  const multiplier = Math.pow(10, n - 1)
+  const roundedNumber = Math.ceil(number / multiplier) * multiplier
+
+  return roundedNumber
+}
+
+// API курсы валют
 async function fetchCurrencyRates() {
   try {
     const storedData = localStorage.getItem('currencyRates')
@@ -864,7 +891,6 @@ async function updateCarouselDisk(dc, where) {
   let exactMatchSlides = []
 
   if (Array.isArray(myArrowDiskImages)) {
-    console.log('myArrowDiskImages 111', myArrowDiskImages)
     exactMatchSlides = myArrowDiskImages.filter((slide) => {
       // Проверяем условия фильтрации для каждого слайда
       return matchingIndexes.some(
@@ -1427,9 +1453,6 @@ function convertCarState(carState) {
       const modelName = Object.keys(model)[0]
       const priceInRub = model[modelName].price * cnyToRubExchangeRate
       const customInRub = model[modelName].custom * cnyToRubExchangeRate
-      console.log(
-        `${model} Model: ${modelName}, Price in RUB: ${priceInRub}, Custom in RUB: ${customInRub}`
-      )
 
       return { [modelName]: { price: priceInRub, custom: customInRub } }
     }),
@@ -1446,12 +1469,11 @@ function convertCarState(carState) {
     recyclingFee: carState.recyclingFee,
     carLocalization: carState.carLocalization,
   }
-  console.log('updatedCarState', updatedCarState)
   return updatedCarState
 }
 
 function sumCarModelsPrices(carState) {
-  // Получение всех цен из объекта состояния БЕЗ ДОП ОПЦИЙ
+  // Получение всех цен из объекта состояния БЕЗ ОПЦИЙ
   const {
     models,
     delivery: {
@@ -1473,10 +1495,6 @@ function sumCarModelsPrices(carState) {
     const customCNY =
       models.find((model) => model[modelName])?.[modelName].custom || 0
 
-    console.log(
-      'MODEL',
-      models.find((model) => model[modelName])
-    )
     const total =
       modelPriceCNY +
       customCNY +
@@ -1487,17 +1505,16 @@ function sumCarModelsPrices(carState) {
       labFees +
       recyclingFee +
       carLocalization
-
-    const totalWithMarga = total + total * (marga / 100)
-
-    return roundNumberToNChars(totalWithMarga, 4)
+    const totalWithMarga = calculateWithPercentage(total, carState.marga)
+    // return roundNumberToNChars(totalWithMarga, 4, 'sumCarModelsPrices')
+    return roundNumberToNChars(totalWithMarga, 4, 'sumCarModelsPrices')
   })
 
   return totalPrices
 }
 
 function sumCarPrices(carState, myPriceModels) {
-  // Получение всех цен из объекта состояния БЕЗ ДОП ОПЦИЙ
+  // Получение всех цен из объекта состояния ОПЦИЙ
   const {
     options: { color, wheels, interiorColor, runningBoards },
   } = carState
@@ -1520,34 +1537,17 @@ function sumCarPrices(carState, myPriceModels) {
     wheels[0] +
     interiorColor[0] /* - saleAll если нужно делать вычет */
 
-  if (carState.options.runningBoards[1]) {
-    const options = carState.options.runningBoards[0]
+  if (runningBoards[1]) {
+    const options = runningBoards[0]
     options.forEach((option) => {
       if (option.show) {
         total += option.price
       }
     })
   }
+
   totalPrice = total
-  return total
-}
-
-function roundNumberToNChars(number, n) {
-  number = Math.ceil(number)
-  if (typeof number !== 'number' || !Number.isInteger(number) || number < 0) {
-    throw new Error('number должно быть положительным целым числом')
-  }
-
-  if (typeof n !== 'number' || !Number.isInteger(n) || n < 1) {
-    throw new Error(
-      'n должно быть положительным целым числом больше или равным 1'
-    )
-  }
-
-  const multiplier = Math.pow(10, n - 1)
-  const roundedNumber = Math.ceil(number / multiplier) * multiplier
-
-  return roundedNumber
+  return numberWithSpaces(total)
 }
 
 const innerPriceHeader = () => {
@@ -1595,8 +1595,8 @@ const totalSaleCheck = () => {
     wheelDiscount +
     interiorColorDiscount +
     runningBoardsDiscount
-  saleAll = totalDiscount
-  return totalDiscount
+  saleAll = numberWithSpaces(totalDiscount)
+  return numberWithSpaces(totalDiscount)
 }
 
 // ОБНОВЛЕНИЕ ЧЕКА
@@ -1614,8 +1614,9 @@ async function updateCheck() {
   }
 
   await sumCarPrices(updatedCarState, myPriceModels)
+
   totalpriceElements.forEach((e) => {
-    e.innerHTML = numberWithSpaces(sumCarPrices(carState, myPriceModels))
+    e.innerHTML = sumCarPrices(carState, myPriceModels)
   })
 
   // Вставляем выбранные цвета, диски и салон В ЧЕК
@@ -1657,15 +1658,10 @@ async function updateCheck() {
   })
   // Вычисляем и вставляем общую стоимость
   totalPriceCarElements.forEach((element) => {
-    element.textContent = `${numberWithSpaces(
-      sumCarPrices(carState, myPriceModels)
-    )} руб.`
+    element.textContent = `${sumCarPrices(carState, myPriceModels)} руб.`
   })
 }
 
-function numberWithSpaces(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-}
 //  СОХРАНЯЕМ СЛАЙДЫ АВТО ДИСКИ
 function saveAllSlides(carousel) {
   const allSlides = []
@@ -1766,17 +1762,14 @@ const updateWebsite = () => {
 
   // ПРОВЕРКА НА ДИСКИ TRUE FALSE
   if (carState.options.wheels[3] === true && diskDiametr.swiper) {
-    console.log('111')
     myArrowDiskImages = saveAllSlides(diskImage.swiper)
   } else if (carState.options.wheels[3] === false) {
-    console.log('222')
     myArrowDiskImages = colorImageCarousel.querySelector('.swiper-slide-active')
     document.querySelectorAll(arrayWrappers[1]).forEach((e) => {
       e.style.display = 'none'
     })
   } else {
     myArrowDiskImages = saveAllSlides(diskImage.swiper)
-    console.log('333')
   }
 
   checkDopOtionShow()
@@ -1801,10 +1794,6 @@ const updateWebsite = () => {
     })
 }
 
-// Функция для вычисления суммы с процентом без десятых
-function calculateWithPercentage(sum, percentage) {
-  return roundNumberToNChars(Math.ceil(sum * (1 + percentage / 100)), 4)
-}
 const tableBody4 = data4.map((item) => [
   {
     text: item,
@@ -1836,11 +1825,6 @@ const myPDF = async () => {
     { label: 'ЦВЕТ САЛОНА:', value: carState.options.interiorColor[1] },
   ]
 
-  const totalCarPrice = roundNumberToNChars(
-    sumCarPrices(carState, myPriceModels),
-    4
-  )
-
   const data2 = [
     saleAll && saleAll !== 0
       ? {
@@ -1851,7 +1835,7 @@ const myPDF = async () => {
     {
       label: '*СТОИМОСТЬ ТАМОЖНИ:',
       value: `${numberWithSpaces(
-        roundNumberToNChars(pricecustomInRub[carState.model[1]], 4)
+        roundNumberToNChars(pricecustomInRub[carState.model[1]], 4, 'data2')
       )} руб.`,
     },
     {
@@ -1859,12 +1843,12 @@ const myPDF = async () => {
         saleAll && saleAll !== 0
           ? 'ИТОГОВАЯ СТОИМОСТЬ\nс учетом скидки:'
           : 'ИТОГОВАЯ СТОИМОСТЬ',
-      value: `${numberWithSpaces(totalCarPrice)} руб.`,
+      value: `${numberWithSpaces(totalPrice)} руб.`,
     },
     {
       label: 'СТОИМОСТЬ С НДС:',
       value: `${numberWithSpaces(
-        calculateWithPercentage(totalCarPrice, carState.marga)
+        calculateWithPercentage(totalPrice, 22)
       )} руб.`,
     },
     { label: 'СРОК ПОСТАВКИ:', value: '30-60 ДНЕЙ' },
@@ -2306,7 +2290,6 @@ async function loadConfigutation() {
     updateDopOptions()
     fetchCurrencyRates().then((data) => {
       updatedCarState = convertCarState(carState)
-      console.log('updatedCarState', updatedCarState)
       if (updatedCarState) {
         myPriceModels = sumCarModelsPrices(updatedCarState)
       }
