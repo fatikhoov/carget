@@ -509,7 +509,9 @@ const checkWheels = (selectedModel) => {
       )
     }
   }
-  updateCarouselDisk(`${carState.options.color[1]}-0`, 'checkWheels')
+  diskImage.swiper
+    ? updateCarouselDisk(`${carState.options.color[1]}-0`, 'checkWheels')
+    : ''
 
   return true
 }
@@ -1762,14 +1764,19 @@ const updateWebsite = () => {
 
   // ПРОВЕРКА НА ДИСКИ TRUE FALSE
   if (carState.options.wheels[3] === true && diskDiametr.swiper) {
+    console.log('1')
     myArrowDiskImages = saveAllSlides(diskImage.swiper)
   } else if (carState.options.wheels[3] === false) {
+    console.log('2')
     myArrowDiskImages = colorImageCarousel.querySelector('.swiper-slide-active')
     document.querySelectorAll(arrayWrappers[1]).forEach((e) => {
       e.style.display = 'none'
     })
   } else {
-    myArrowDiskImages = saveAllSlides(diskImage.swiper)
+    console.log('3')
+    diskImage.swiper
+      ? (myArrowDiskImages = saveAllSlides(diskImage.swiper))
+      : (myArrowDiskImages = [diskImage.querySelector('.swiper-slide')])
   }
 
   checkDopOtionShow()
@@ -1870,6 +1877,7 @@ const myPDF = async () => {
 
   // Функция для извлечения текста из элементов списка и создания массива данных
   function extractTextFromList(list) {
+    console.log('Array.from(list)', Array.from(list))
     return Array.from(list).map((item) => {
       const text = item.innerHTML.trim()
       const cleanedText = text
