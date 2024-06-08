@@ -1607,12 +1607,15 @@ async function updateCheck() {
   checkDopOtionShow()
   checkDopOptions()
 
-  if (saleAll && saleAll !== 0) {
-    ;(discountCheck.style.display = 'flex'),
-      (priceItemDiscount.style.display = 'flex')
+  discountCheck.style.display = 'none'
+  priceItemDiscount.style.display = 'none'
+
+  if (saleAll && saleAll > 0) {
+    console.log('SALE ALL 1', saleAll)
+    discountCheck.style.display = 'flex'
+    priceItemDiscount.style.display = 'flex'
   } else {
-    ;(discountCheck.style.display = 'none'),
-      (priceItemDiscount.style.display = 'none')
+    console.log('SALE ALL 2', saleAll)
   }
 
   await sumCarPrices(updatedCarState, myPriceModels)
@@ -1833,7 +1836,7 @@ const myPDF = async () => {
   ]
 
   const data2 = [
-    saleAll && saleAll !== 0
+    saleAll && saleAll > 0
       ? {
           label: 'СУММАРНАЯ СКИДКА:',
           value: `${saleAll} руб.`,
@@ -1847,7 +1850,7 @@ const myPDF = async () => {
     },
     {
       label:
-        saleAll && saleAll !== 0
+        saleAll && saleAll > 0
           ? 'ИТОГОВАЯ СТОИМОСТЬ\nс учетом скидки:'
           : 'ИТОГОВАЯ СТОИМОСТЬ',
       value: `${numberWithSpaces(totalPrice)} руб.`,
