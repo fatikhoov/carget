@@ -171,6 +171,12 @@
     max-height: 200px !important;
   }
 
+  .check-list-image .swiper-slide-image {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 200px !important;
+  }
+
   .header-wrapper .elementor-widget-wrap {
     margin: 0 !important;
     padding: 0 !important;

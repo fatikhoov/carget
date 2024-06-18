@@ -1665,6 +1665,8 @@ async function updateCheck() {
   totalPriceCarElements.forEach((element) => {
     element.textContent = `${sumCarPrices(carState, myPriceModels)} руб.`
   })
+
+  document.querySelector('.check-list-image .swiper-slide').style.transform = ''
 }
 
 //  СОХРАНЯЕМ СЛАЙДЫ АВТО ДИСКИ
