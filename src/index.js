@@ -224,6 +224,7 @@ function showLoader() {
 function hideLoader() {
   loader.style.display = 'none'
   cargetLoader.style.display = 'none'
+  console.log('loader hide')
 }
 // Создаем элемент иконки автомобиля от Google Fonts
 const loaderCar = document.createElement('div')
@@ -2300,8 +2301,11 @@ async function loadConfigutation() {
   }
   try {
     await waitForSlider()
+    // Страница загружена, скрываем загрузчик loader
+    hideLoader()
     updateDopOptions()
-    fetchCurrencyRates().then((data) => {
+
+    fetchCurrencyRates().then(() => {
       updatedCarState = convertCarState(carState)
       if (updatedCarState) {
         myPriceModels = sumCarModelsPrices(updatedCarState)
@@ -2311,8 +2315,7 @@ async function loadConfigutation() {
         updateWebsite()
         colorSalon.swiper ? colorSalon.swiper.slideTo(0) : ''
         myPDF()
-        // Страница загружена, скрываем загрузчик loader
-        hideLoader()
+
         clearInterval(textChangeInterval)
       }
     })
