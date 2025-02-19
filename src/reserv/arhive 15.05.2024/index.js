@@ -2547,7 +2547,7 @@ function gExel() {
   const sheetName = document.title
 
   const URL_GOOGLE_SHEET =
-    'https://script.google.com/macros/s/AKfycbzt3Vbt7jOPOLf5DdyMuBYaJj30_3rHubG_hkRog6EX574wBRkZIuLWB1wKefZtemR5/exec?sheetName='
+    'https://script.google.com/macros/s/AKfycbx4y_rXdz-EGRs2WbBDp5DmQ40wAMtAqcm9NW3Ki6c70dAy1-xj2T4I5a06gl6PkAUk/exec?sheetName='
 
   const app = URL_GOOGLE_SHEET + sheetName
 
