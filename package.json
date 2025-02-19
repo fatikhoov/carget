@@ -1,6 +1,6 @@
 {
   "name": "carget",
-  "version": "2.2.5",
+  "version": "3.0.0",
   "description": "optimization js code for carget website",
   "main": "dist/index.min.js",
   "scripts": {
