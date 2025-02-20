@@ -2503,12 +2503,12 @@ function processDataFromExcel(data) {
 
   for (let i = 0; i < 50; i++) {
     // Проверяем, существует ли элемент data[i] и имеет ли он свойство data[i][0]
-    if (!data[i] || !data[i][0]) {
+    if (!data[document.title] || !data[document.title][i]) {
       // Если элемент data[i][0] отсутствует, прерываем выполнение цикла
       break
     }
-    let fieldName = data[i][0]
-    let fieldData = data[i].slice(1).filter(Boolean) // Удаляем пустые значения
+    let fieldName = data[document.title][i]
+    let fieldData = data[document.title][i].slice(1).filter(Boolean) // Удаляем пустые значения
 
     // В зависимости от имени поля обрабатываем данные по-разному
     switch (fieldName) {
