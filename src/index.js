@@ -11,15 +11,7 @@ const customConsoleLog = async (
 ) => {
   await console.log(`%c${description}`, descriptionStyle, value)
 }
-
-/*
-customConsoleLog(
-  'ДО фильтра опции колес',
-  carState.options.wheels[2],
-  'background: brown; color: white;',
-  'font-weight: bold;'
-)
-*/
+ 
 let TEST3, TEST4
 
 let modelsArray = []
@@ -2554,6 +2546,7 @@ function processDataFromExcel(data) {
 
     for (let i = 0; i < modelsData.length; i++) {
       if (modelsData[i]) {
+        console.log(modelsData[i])
         let modelInfo = modelsData[i].split('#')
         let modelName = modelInfo[0].trim()
         // Извлекаем параметры из строки
