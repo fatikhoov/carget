@@ -2547,7 +2547,8 @@ function processDataFromExcel(data) {
     for (let i = 0; i < modelsData.length; i++) {
       if (modelsData[i] === 'models') {
         console.log('1', modelsData[i]) 
-        modelName = modelInfo[0].trim()
+        modelInfo = modelsData[i].split('#')
+        modelName = modelInfo[0].trim() 
       } else {
         console.log('2', modelsData[i]) 
         modelInfo = modelsData[i].split('#')
