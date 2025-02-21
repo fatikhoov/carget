@@ -2543,19 +2543,21 @@ function processDataFromExcel(data) {
   // Обработка данных о моделях
   function processModelsData(modelsData) {
     let modelsArray = []
-
+    let modelName, modelInfo
     for (let i = 0; i < modelsData.length; i++) {
-      if (modelsData[i]) {
-        console.log(modelsData[i])
-        let modelInfo = modelsData[i].split('#')
-        let modelName = modelInfo[0].trim()
+      if (modelsData[i] === 'models') {
+        console.log('1', modelsData[i])
+        modelInfo = modelsData[i].split('#')
+        modelName = modelInfo[0].trim()
+      } else {
+        console.log('2', modelsData[i]) 
         // Извлекаем параметры из строки
         let priceMatch = modelInfo[1].match(/"price"\s*:\s*(\d+)/)
         let customMatch = modelInfo[1].match(/"custom"\s*:\s*(\d+)/)
         let saleMatch = modelInfo[1].match(/"sale"\s*:\s*(\d+)/)
         let showMatch = modelInfo[1].match(/"show"\s*:\s*(\w+)/)
 
-        // Преобразуем значения в нужные типы
+       // Преобразуем значения в нужные типы
         let price = priceMatch ? parseInt(priceMatch[1]) : 0
         let custom = customMatch ? parseInt(customMatch[1]) : 0
         let sale = saleMatch ? parseInt(saleMatch[1]) : 0
