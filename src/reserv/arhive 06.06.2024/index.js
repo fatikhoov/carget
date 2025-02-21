@@ -2794,7 +2794,7 @@ function processDataFromExcel(data) {
       // Если элемент data[i][0] отсутствует, прерываем выполнение цикла
       break
     }
-    let fieldName = data[document.title][i]
+    let fieldName = data[document.title][i][1]
     let fieldData = data[document.title][i].slice(1).filter(Boolean) // Удаляем пустые значения
 
     // В зависимости от имени поля обрабатываем данные по-разному
