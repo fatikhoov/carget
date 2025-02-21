@@ -2546,11 +2546,11 @@ function processDataFromExcel(data) {
     let modelName, modelInfo
     for (let i = 0; i < modelsData.length; i++) {
       if (modelsData[i] === 'models') {
-        console.log('1', modelsData[i])
-        modelInfo = modelsData[i].split('#')
+        console.log('1', modelsData[i]) 
         modelName = modelInfo[0].trim()
       } else {
         console.log('2', modelsData[i]) 
+        modelInfo = modelsData[i].split('#')
         // Извлекаем параметры из строки
         let priceMatch = modelInfo[1].match(/"price"\s*:\s*(\d+)/)
         let customMatch = modelInfo[1].match(/"custom"\s*:\s*(\d+)/)
