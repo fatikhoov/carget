@@ -2544,14 +2544,10 @@ function processDataFromExcel(data) {
   function processModelsData(modelsData) {
     let modelsArray = []
     let modelName, modelInfo
-    for (let i = 0; i < modelsData.length; i++) {
-      if (modelsData[i] === 'models') {
+    for (let i = 0; i < modelsData.length; i++) { 
         console.log('1', modelsData[i]) 
         modelInfo = modelsData[i].split('#')
-        modelName = modelInfo[0].trim() 
-      } else {
-        console.log('2', modelsData[i]) 
-        modelInfo = modelsData[i].split('#')
+        modelName = modelInfo[0].trim()   
         // Извлекаем параметры из строки
         let priceMatch = modelInfo[1].match(/"price"\s*:\s*(\d+)/)
         let customMatch = modelInfo[1].match(/"custom"\s*:\s*(\d+)/)
@@ -2578,7 +2574,6 @@ function processDataFromExcel(data) {
           modelsArray.push(modelObject)
         }
       }
-    }
 
     carState.models = modelsArray
     carState.model[0] = document.title
@@ -2789,8 +2784,8 @@ function processDataFromExcel(data) {
       // Если элемент data[i][0] отсутствует, прерываем выполнение цикла
       break
     }
-    let fieldName = data[document.title][i][1]
-    let fieldData = data[document.title][i].slice(1).filter(Boolean) // Удаляем пустые значения
+    let fieldName = data[document.title][i][0] // имя категории
+    let fieldData = data[document.title][i].slice(1).filter(Boolean) // значения категории
 
     // В зависимости от имени поля обрабатываем данные по-разному
     switch (fieldName) {
